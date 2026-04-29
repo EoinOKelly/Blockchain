@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create Wallet | Ticketing DApp</title>
+  <link rel="stylesheet" href="../styles/main.css" />
+</head>
+<body>
+  <div class="app">
+    <aside id="sidebar" class="sidebar">
+      <button id="sidebarToggle" class="hamburger-toggle" type="button" aria-label="Toggle sidebar" aria-expanded="true">&#9776;</button>
+      <h2 class="sidebar-title">Quick Nav</h2>
+      <a class="nav-link" href="../index.html"><span class="link-text">Home</span></a>
+      <a class="nav-link active" href="./create-wallet.html"><span class="link-text">Create Wallet</span></a>
+      <a class="nav-link" href="./balances.html"><span class="link-text">Balances</span></a>
+      <a class="nav-link" href="./buy-ticket.html"><span class="link-text">Buy Ticket</span></a>
+      <a class="nav-link" href="./return-ticket.html"><span class="link-text">Return Ticket</span></a>
+    </aside>
+
+    <main class="main-content">
+      <section class="container">
+        <article class="card">
+          <h1>Create Wallet</h1>
+          <p class="muted">
+            Generate a new wallet for Sepolia test usage. Keep private keys secure.
+          </p>
+
+          <div class="actions">
+            <button id="createWalletBtn" type="button">Create Wallet</button>
+            <button id="downloadWalletBtn" type="button" disabled>Download Wallet JSON</button>
+          </div>
+
+          <p id="statusMessage" class="status" aria-live="polite"></p>
+        </article>
+
+        <article class="card">
+          <h2>Wallet Details</h2>
+          <div id="walletDetails" class="details hidden">
+            <div class="row">
+              <span class="label">Address</span>
+              <code id="walletAddress"></code>
+            </div>
+            <div class="row">
+              <span class="label">Private Key</span>
+              <code id="walletPrivateKey"></code>
+            </div>
+            <div class="row">
+              <span class="label">Mnemonic</span>
+              <code id="walletMnemonic"></code>
+            </div>
+          </div>
+          <p id="emptyState" class="muted">No wallet created yet.</p>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <script src="../js/ui.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.2/dist/ethers.umd.min.js"></script>
+  <script src="../js/wallet.js"></script>
+</body>
+</html>
