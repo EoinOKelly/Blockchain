@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Buy Ticket | Ticketing DApp</title>
+  <link rel="stylesheet" href="../styles/main.css" />
+</head>
+<body>
+  <div class="app">
+    <aside id="sidebar" class="sidebar">
+      <button id="sidebarToggle" class="hamburger-toggle" type="button" aria-label="Toggle sidebar" aria-expanded="true">&#9776;</button>
+      <h2 class="sidebar-title">Quick Nav</h2>
+      <a class="nav-link" href="../index.html"><span class="link-text">Home</span></a>
+      <a class="nav-link" href="./create-wallet.html"><span class="link-text">Create Wallet</span></a>
+      <a class="nav-link" href="./balances.html"><span class="link-text">Balances</span></a>
+      <a class="nav-link active" href="./buy-ticket.html"><span class="link-text">Buy Ticket</span></a>
+      <a class="nav-link" href="./return-ticket.html"><span class="link-text">Return Ticket</span></a>
+    </aside>
+
+    <main class="main-content">
+      <section class="container">
+        <article class="card">
+          <h1>Buy Ticket Token</h1>
+          <p class="muted">Boilerplate page for purchasing a ticket token using Sepolia ETH.</p>
+          <div class="actions">
+            <button type="button">Buy 1 Ticket</button>
+          </div>
+        </article>
+
+        <article class="card">
+          <h2>Purchase Details</h2>
+          <div class="details">
+            <div class="row">
+              <span class="label">Token Price</span>
+              <code>TBD</code>
+            </div>
+            <div class="row">
+              <span class="label">Selected Wallet</span>
+              <code>Not connected</code>
+            </div>
+            <div class="row">
+              <span class="label">Result</span>
+              <code>Awaiting transaction</code>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <script src="../js/ui.js"></script>
+  <script src="../js/ticketing.js"></script>
+</body>
+</html>

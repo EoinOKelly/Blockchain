@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Check Balances | Ticketing DApp</title>
+  <link rel="stylesheet" href="../styles/main.css" />
+</head>
+<body>
+  <div class="app">
+    <aside id="sidebar" class="sidebar">
+      <button id="sidebarToggle" class="hamburger-toggle" type="button" aria-label="Toggle sidebar" aria-expanded="true">&#9776;</button>
+      <h2 class="sidebar-title">Quick Nav</h2>
+      <a class="nav-link" href="../index.html"><span class="link-text">Home</span></a>
+      <a class="nav-link" href="./create-wallet.html"><span class="link-text">Create Wallet</span></a>
+      <a class="nav-link active" href="./balances.html"><span class="link-text">Balances</span></a>
+      <a class="nav-link" href="./buy-ticket.html"><span class="link-text">Buy Ticket</span></a>
+      <a class="nav-link" href="./return-ticket.html"><span class="link-text">Return Ticket</span></a>
+    </aside>
+
+    <main class="main-content">
+      <section class="container">
+        <article class="card">
+          <h1>Check Balances</h1>
+          <p class="muted">Boilerplate page for wallet ETH and ticket-token balances.</p>
+          <div class="actions">
+            <button type="button">Refresh Balances</button>
+          </div>
+        </article>
+
+        <article class="card">
+          <h2>Balance Details</h2>
+          <div class="details">
+            <div class="row">
+              <span class="label">Wallet Address</span>
+              <code>Not connected</code>
+            </div>
+            <div class="row">
+              <span class="label">Sepolia ETH</span>
+              <code>0.0000</code>
+            </div>
+            <div class="row">
+              <span class="label">Ticket Tokens</span>
+              <code>0</code>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <script src="../js/ui.js"></script>
+  <script src="../js/blockchain.js"></script>
+</body>
+</html>

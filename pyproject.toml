@@ -1,0 +1,14 @@
+[project]
+name = "blockchain-ticketing-dapp"
+version = "0.1.0"
+description = "Web3 ticketing DApp project tooling configuration."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = []
+
+[dependency-groups]
+dev = [
+  "commitizen>=3.29.0",
+  "pre-commit>=3.8.0",
+  "ruff>=0.6.9",
+]
