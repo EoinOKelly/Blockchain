@@ -22,10 +22,22 @@
       <section class="container">
         <article class="card">
           <h1>Check Balances</h1>
-          <p class="muted">Boilerplate page for wallet ETH and ticket-token balances.</p>
-          <div class="actions">
-            <button type="button">Refresh Balances</button>
+          <p class="muted">
+            Enter any wallet address to view its current ETH balance on Sepolia.
+          </p>
+          <div class="row">
+            <label class="label" for="walletAddressInput">Wallet address</label>
+            <input
+              id="walletAddressInput"
+              type="text"
+              placeholder="0x..."
+              autocomplete="off"
+            />
           </div>
+          <div class="actions">
+            <button id="refreshBalanceBtn" type="button">Check Sepolia Balance</button>
+          </div>
+          <p id="statusMessage" class="status" aria-live="polite"></p>
         </article>
 
         <article class="card">
@@ -33,15 +45,11 @@
           <div class="details">
             <div class="row">
               <span class="label">Wallet Address</span>
-              <code>Not connected</code>
+              <code id="resolvedAddressValue">-</code>
             </div>
             <div class="row">
               <span class="label">Sepolia ETH</span>
-              <code>0.0000</code>
-            </div>
-            <div class="row">
-              <span class="label">Ticket Tokens</span>
-              <code>0</code>
+              <code id="ethBalanceValue">-</code>
             </div>
           </div>
         </article>
@@ -50,6 +58,7 @@
   </div>
 
   <script src="../js/ui.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.2/dist/ethers.umd.min.js"></script>
   <script src="../js/blockchain.js"></script>
 </body>
 </html>

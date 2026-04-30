@@ -8,6 +8,10 @@ const walletAddress = document.getElementById("walletAddress");
 const walletPrivateKey = document.getElementById("walletPrivateKey");
 const walletMnemonic = document.getElementById("walletMnemonic");
 const emptyState = document.getElementById("emptyState");
+const copyAddressBtn = document.getElementById("copyAddressBtn");
+const copyPrivateKeyBtn = document.getElementById("copyPrivateKeyBtn");
+const openFaucetBtn = document.getElementById("openFaucetBtn");
+const openExplorerBtn = document.getElementById("openExplorerBtn");
 
 let currentWalletData = null;
 
@@ -23,6 +27,21 @@ function renderWallet(data) {
   walletDetails.classList.remove("hidden");
   emptyState.classList.add("hidden");
   downloadWalletBtn.disabled = false;
+}
+
+async function copyText(value, label) {
+  if (!value) {
+    setStatus(`No ${label.toLowerCase()} available to copy.`, true);
+    return;
+  }
+
+  try {
+    await navigator.clipboard.writeText(value);
+    setStatus(`${label} copied to clipboard.`);
+  } catch (error) {
+    setStatus(`Could not copy ${label.toLowerCase()}.`, true);
+    console.error(error);
+  }
 }
 
 function createWallet() {
@@ -66,5 +85,43 @@ function downloadWallet() {
   setStatus("Wallet JSON downloaded.");
 }
 
-createWalletBtn.addEventListener("click", createWallet);
-downloadWalletBtn.addEventListener("click", downloadWallet);
+function openSepoliaFaucet() {
+  const url = "https://cloud.google.com/application/web3/faucet/ethereum/sepolia";
+  window.open(url, "_blank", "noopener,noreferrer");
+}
+
+function openSepoliaExplorer() {
+  if (!currentWalletData) {
+    setStatus("Create a wallet first before opening the explorer.", true);
+    return;
+  }
+
+  const url = `https://sepolia.etherscan.io/address/${currentWalletData.address}`;
+  window.open(url, "_blank", "noopener,noreferrer");
+}
+
+if (createWalletBtn) {
+  createWalletBtn.addEventListener("click", createWallet);
+}
+
+if (downloadWalletBtn) {
+  downloadWalletBtn.addEventListener("click", downloadWallet);
+}
+
+if (copyAddressBtn) {
+  copyAddressBtn.addEventListener("click", () => copyText(currentWalletData?.address, "Address"));
+}
+
+if (copyPrivateKeyBtn) {
+  copyPrivateKeyBtn.addEventListener("click", () =>
+    copyText(currentWalletData?.privateKey, "Private key")
+  );
+}
+
+if (openFaucetBtn) {
+  openFaucetBtn.addEventListener("click", openSepoliaFaucet);
+}
+
+if (openExplorerBtn) {
+  openExplorerBtn.addEventListener("click", openSepoliaExplorer);
+}

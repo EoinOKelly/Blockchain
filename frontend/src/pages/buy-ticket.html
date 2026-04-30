@@ -22,10 +22,26 @@
       <section class="container">
         <article class="card">
           <h1>Buy Ticket Token</h1>
-          <p class="muted">Boilerplate page for purchasing a ticket token using Sepolia ETH.</p>
-          <div class="actions">
-            <button type="button">Buy 1 Ticket</button>
+          <p class="muted">
+            Check wallet ETH and ticket token balances, then buy a ticket if needed.
+            Useful for attendees, doormen verifying ownership, and venue distribution checks.
+          </p>
+          <div class="row">
+            <label class="label" for="walletAddressInput">Wallet address to check</label>
+            <input
+              id="walletAddressInput"
+              type="text"
+              placeholder="0x..."
+              autocomplete="off"
+            />
           </div>
+          <div class="actions">
+            <button id="connectWalletBtn" type="button">Connect Wallet</button>
+            <button id="useConnectedBtn" type="button" disabled>Use Connected Wallet</button>
+            <button id="checkBalancesBtn" type="button">Check Balances</button>
+            <button id="buyTicketBtn" type="button">Buy 1 Ticket</button>
+          </div>
+          <p id="statusMessage" class="status" aria-live="polite"></p>
         </article>
 
         <article class="card">
@@ -33,15 +49,23 @@
           <div class="details">
             <div class="row">
               <span class="label">Token Price</span>
-              <code>TBD</code>
+              <code id="ticketPriceValue">0.01 ETH</code>
             </div>
             <div class="row">
               <span class="label">Selected Wallet</span>
-              <code>Not connected</code>
+              <code id="selectedWalletValue">Not connected</code>
+            </div>
+            <div class="row">
+              <span class="label">Sepolia ETH Balance</span>
+              <code id="ethBalanceValue">-</code>
+            </div>
+            <div class="row">
+              <span class="label">Ticket Token Balance</span>
+              <code id="ticketBalanceValue">-</code>
             </div>
             <div class="row">
               <span class="label">Result</span>
-              <code>Awaiting transaction</code>
+              <code id="resultValue">Awaiting action</code>
             </div>
           </div>
         </article>
@@ -50,6 +74,7 @@
   </div>
 
   <script src="../js/ui.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.2/dist/ethers.umd.min.js"></script>
   <script src="../js/ticketing.js"></script>
 </body>
 </html>

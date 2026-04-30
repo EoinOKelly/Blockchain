@@ -49,8 +49,25 @@
               <span class="label">Mnemonic</span>
               <code id="walletMnemonic"></code>
             </div>
+            <div class="actions">
+              <button id="copyAddressBtn" type="button">Copy Address</button>
+              <button id="copyPrivateKeyBtn" type="button">Copy Private Key</button>
+              <button id="openFaucetBtn" type="button">Open Sepolia Faucet</button>
+              <button id="openExplorerBtn" type="button">Open in Sepolia Explorer</button>
+            </div>
           </div>
           <p id="emptyState" class="muted">No wallet created yet.</p>
+        </article>
+
+        <article class="card">
+          <h2>Use This Wallet on Sepolia</h2>
+          <ol class="steps">
+            <li>Create wallet and keep the private key/mnemonic safe.</li>
+            <li>Import the private key into MetaMask (or your wallet app).</li>
+            <li>Switch MetaMask network to <strong>Ethereum Sepolia Testnet</strong>.</li>
+            <li>Request Sepolia ETH from faucet using this wallet address.</li>
+            <li>Use Buy Ticket / Balances pages with the funded address.</li>
+          </ol>
         </article>
       </section>
     </main>
