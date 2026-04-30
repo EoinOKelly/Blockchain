@@ -161,6 +161,14 @@ button:disabled {
   cursor: not-allowed;
 }
 
+input {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.6rem 0.75rem;
+  font: inherit;
+  width: min(560px, 100%);
+}
+
 .status {
   min-height: 1.25rem;
 }
@@ -194,4 +202,12 @@ code {
 
 .hidden {
   display: none;
+}
+
+.steps {
+  margin: 0;
+  padding-left: 1.2rem;
+  color: var(--text);
+  display: grid;
+  gap: 0.5rem;
 }
