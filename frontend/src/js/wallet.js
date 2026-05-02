@@ -53,7 +53,7 @@ function createWallet() {
       privateKey: wallet.privateKey,
       mnemonic: wallet.mnemonic ? wallet.mnemonic.phrase : null,
       createdAt: new Date().toISOString(),
-      network: "sepolia"
+      network: "sepolia",
     };
 
     renderWallet(currentWalletData);
@@ -114,7 +114,7 @@ if (copyAddressBtn) {
 
 if (copyPrivateKeyBtn) {
   copyPrivateKeyBtn.addEventListener("click", () =>
-    copyText(currentWalletData?.privateKey, "Private key")
+    copyText(currentWalletData?.privateKey, "Private key"),
   );
 }
 

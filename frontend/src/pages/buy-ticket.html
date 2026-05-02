@@ -1,80 +1,91 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Buy Ticket | Ticketing DApp</title>
-  <link rel="stylesheet" href="../styles/main.css" />
-</head>
-<body>
-  <div class="app">
-    <aside id="sidebar" class="sidebar">
-      <button id="sidebarToggle" class="hamburger-toggle" type="button" aria-label="Toggle sidebar" aria-expanded="true">&#9776;</button>
-      <h2 class="sidebar-title">Quick Nav</h2>
-      <a class="nav-link" href="../index.html"><span class="link-text">Home</span></a>
-      <a class="nav-link" href="./create-wallet.html"><span class="link-text">Create Wallet</span></a>
-      <a class="nav-link" href="./balances.html"><span class="link-text">Balances</span></a>
-      <a class="nav-link active" href="./buy-ticket.html"><span class="link-text">Buy Ticket</span></a>
-      <a class="nav-link" href="./return-ticket.html"><span class="link-text">Return Ticket</span></a>
-    </aside>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Buy Ticket | Ticketing DApp</title>
+    <link rel="stylesheet" href="../styles/main.css" />
+  </head>
+  <body>
+    <div class="app">
+      <aside id="sidebar" class="sidebar">
+        <button
+          id="sidebarToggle"
+          class="hamburger-toggle"
+          type="button"
+          aria-label="Toggle sidebar"
+          aria-expanded="true"
+        >
+          &#9776;
+        </button>
+        <h2 class="sidebar-title">Quick Nav</h2>
+        <a class="nav-link" href="../index.html"><span class="link-text">Home</span></a>
+        <a class="nav-link" href="./create-wallet.html"
+          ><span class="link-text">Create Wallet</span></a
+        >
+        <a class="nav-link" href="./balances.html"><span class="link-text">Balances</span></a>
+        <a class="nav-link active" href="./buy-ticket.html"
+          ><span class="link-text">Buy Ticket</span></a
+        >
+        <a class="nav-link" href="./return-ticket.html"
+          ><span class="link-text">Return Ticket</span></a
+        >
+      </aside>
 
-    <main class="main-content">
-      <section class="container">
-        <article class="card">
-          <h1>Buy Ticket Token</h1>
-          <p class="muted">
-            Check wallet ETH and ticket token balances, then buy a ticket if needed.
-            Useful for attendees, doormen verifying ownership, and venue distribution checks.
-          </p>
-          <div class="row">
-            <label class="label" for="walletAddressInput">Wallet address to check</label>
-            <input
-              id="walletAddressInput"
-              type="text"
-              placeholder="0x..."
-              autocomplete="off"
-            />
-          </div>
-          <div class="actions">
-            <button id="connectWalletBtn" type="button">Connect Wallet</button>
-            <button id="useConnectedBtn" type="button" disabled>Use Connected Wallet</button>
-            <button id="checkBalancesBtn" type="button">Check Balances</button>
-            <button id="buyTicketBtn" type="button">Buy 1 Ticket</button>
-          </div>
-          <p id="statusMessage" class="status" aria-live="polite"></p>
-        </article>
+      <main class="main-content">
+        <section class="container">
+          <article class="card">
+            <h1>Buy Ticket Token</h1>
+            <p class="muted">
+              Check wallet ETH and ticket token balances, then buy a ticket if needed. Useful for
+              attendees, doormen verifying ownership, and venue distribution checks.
+            </p>
+            <div class="row">
+              <label class="label" for="walletAddressInput">Wallet address to check</label>
+              <input id="walletAddressInput" type="text" placeholder="0x..." autocomplete="off" />
+            </div>
+            <div class="actions">
+              <button id="connectWalletBtn" type="button">Connect Wallet</button>
+              <button id="useConnectedBtn" type="button" disabled>Use Connected Wallet</button>
+              <button id="checkBalancesBtn" type="button">Check Balances</button>
+              <button id="buyTicketBtn" type="button">Buy 1 Ticket</button>
+            </div>
+            <p id="statusMessage" class="status" aria-live="polite"></p>
+          </article>
 
-        <article class="card">
-          <h2>Purchase Details</h2>
-          <div class="details">
-            <div class="row">
-              <span class="label">Token Price</span>
-              <code id="ticketPriceValue">0.01 ETH</code>
+          <article class="card">
+            <h2>Purchase Details</h2>
+            <div class="details">
+              <div class="row">
+                <span class="label">Token Price</span>
+                <code id="ticketPriceValue">0.01 ETH</code>
+              </div>
+              <div class="row">
+                <span class="label">Selected Wallet</span>
+                <code id="selectedWalletValue">Not connected</code>
+              </div>
+              <div class="row">
+                <span class="label">Sepolia ETH Balance</span>
+                <code id="ethBalanceValue">-</code>
+              </div>
+              <div class="row">
+                <span class="label">Ticket Token Balance</span>
+                <code id="ticketBalanceValue">-</code>
+              </div>
+              <div class="row">
+                <span class="label">Result</span>
+                <code id="resultValue">Awaiting action</code>
+              </div>
             </div>
-            <div class="row">
-              <span class="label">Selected Wallet</span>
-              <code id="selectedWalletValue">Not connected</code>
-            </div>
-            <div class="row">
-              <span class="label">Sepolia ETH Balance</span>
-              <code id="ethBalanceValue">-</code>
-            </div>
-            <div class="row">
-              <span class="label">Ticket Token Balance</span>
-              <code id="ticketBalanceValue">-</code>
-            </div>
-            <div class="row">
-              <span class="label">Result</span>
-              <code id="resultValue">Awaiting action</code>
-            </div>
-          </div>
-        </article>
-      </section>
-    </main>
-  </div>
+          </article>
+        </section>
+      </main>
+    </div>
 
-  <script src="../js/ui.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.2/dist/ethers.umd.min.js"></script>
-  <script src="../js/ticketing.js"></script>
-</body>
+    <script src="../js/ui.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.2/dist/ethers.umd.min.js"></script>
+    <script src="../js/config.js"></script>
+    <script src="../js/deployed.inc.js"></script>
+    <script src="../js/ticketing.js"></script>
+  </body>
 </html>
