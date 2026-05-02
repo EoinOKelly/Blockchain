@@ -1,9 +1,18 @@
 # Blockchain
 
 Web3 ticketing DApp project using:
-- Solidity smart contracts (Sepolia testnet target)
-- HTML/CSS/JavaScript frontend
-- GitHub Actions for UI unit tests
+- Solidity ERC-20 ticket token + payable purchase on **Sepolia**
+- HTML/CSS/JavaScript frontend (`ethers` UMD + static pages)
+- GitHub Actions for UI unit tests and contract tests
+
+### Quick path (assignment workflow)
+
+1. **Contracts**: `cd backend && npm ci && npx hardhat test`
+2. **Deploy Sepolia**: configure `backend/.env`, then `npx hardhat run scripts/deploy.js --network sepolia` — this regenerates `frontend/src/js/deployed.inc.js` with the contract and vendor addresses.
+3. **Frontend**: from project root, serve static files (example): `cd frontend/src && npx --yes serve . -p 5173` — open `pages/buy-ticket.html` over **http://** (not `file://`) so MetaMask injects `window.ethereum`.
+4. **Report evidence**: save Sepolia Etherscan links for deployment, `buyTickets`, token `transfer` (return), and faucet top-ups for deployer / purchaser / vendor wallets.
+
+See [backend/README.md](backend/README.md) for deploy and verify details.
 
 ## Dependency Management With uv
 

@@ -1,64 +1,80 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Check Balances | Ticketing DApp</title>
-  <link rel="stylesheet" href="../styles/main.css" />
-</head>
-<body>
-  <div class="app">
-    <aside id="sidebar" class="sidebar">
-      <button id="sidebarToggle" class="hamburger-toggle" type="button" aria-label="Toggle sidebar" aria-expanded="true">&#9776;</button>
-      <h2 class="sidebar-title">Quick Nav</h2>
-      <a class="nav-link" href="../index.html"><span class="link-text">Home</span></a>
-      <a class="nav-link" href="./create-wallet.html"><span class="link-text">Create Wallet</span></a>
-      <a class="nav-link active" href="./balances.html"><span class="link-text">Balances</span></a>
-      <a class="nav-link" href="./buy-ticket.html"><span class="link-text">Buy Ticket</span></a>
-      <a class="nav-link" href="./return-ticket.html"><span class="link-text">Return Ticket</span></a>
-    </aside>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Check Balances | Ticketing DApp</title>
+    <link rel="stylesheet" href="../styles/main.css" />
+  </head>
+  <body>
+    <div class="app">
+      <aside id="sidebar" class="sidebar">
+        <button
+          id="sidebarToggle"
+          class="hamburger-toggle"
+          type="button"
+          aria-label="Toggle sidebar"
+          aria-expanded="true"
+        >
+          &#9776;
+        </button>
+        <h2 class="sidebar-title">Quick Nav</h2>
+        <a class="nav-link" href="../index.html"><span class="link-text">Home</span></a>
+        <a class="nav-link" href="./create-wallet.html"
+          ><span class="link-text">Create Wallet</span></a
+        >
+        <a class="nav-link active" href="./balances.html"
+          ><span class="link-text">Balances</span></a
+        >
+        <a class="nav-link" href="./buy-ticket.html"><span class="link-text">Buy Ticket</span></a>
+        <a class="nav-link" href="./return-ticket.html"
+          ><span class="link-text">Return Ticket</span></a
+        >
+      </aside>
 
-    <main class="main-content">
-      <section class="container">
-        <article class="card">
-          <h1>Check Balances</h1>
-          <p class="muted">
-            Enter any wallet address to view its current ETH balance on Sepolia.
-          </p>
-          <div class="row">
-            <label class="label" for="walletAddressInput">Wallet address</label>
-            <input
-              id="walletAddressInput"
-              type="text"
-              placeholder="0x..."
-              autocomplete="off"
-            />
-          </div>
-          <div class="actions">
-            <button id="refreshBalanceBtn" type="button">Check Sepolia Balance</button>
-          </div>
-          <p id="statusMessage" class="status" aria-live="polite"></p>
-        </article>
-
-        <article class="card">
-          <h2>Balance Details</h2>
-          <div class="details">
+      <main class="main-content">
+        <section class="container">
+          <article class="card">
+            <h1>Check Balances</h1>
+            <p class="muted">
+              Enter any wallet address to view Sepolia ETH and ticket token balances (attendee,
+              doorman, or venue checks).
+            </p>
             <div class="row">
-              <span class="label">Wallet Address</span>
-              <code id="resolvedAddressValue">-</code>
+              <label class="label" for="walletAddressInput">Wallet address</label>
+              <input id="walletAddressInput" type="text" placeholder="0x..." autocomplete="off" />
             </div>
-            <div class="row">
-              <span class="label">Sepolia ETH</span>
-              <code id="ethBalanceValue">-</code>
+            <div class="actions">
+              <button id="refreshBalanceBtn" type="button">Check Balances</button>
             </div>
-          </div>
-        </article>
-      </section>
-    </main>
-  </div>
+            <p id="statusMessage" class="status" aria-live="polite"></p>
+          </article>
 
-  <script src="../js/ui.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.2/dist/ethers.umd.min.js"></script>
-  <script src="../js/blockchain.js"></script>
-</body>
+          <article class="card">
+            <h2>Balance Details</h2>
+            <div class="details">
+              <div class="row">
+                <span class="label">Wallet Address</span>
+                <code id="resolvedAddressValue">-</code>
+              </div>
+              <div class="row">
+                <span class="label">Sepolia ETH</span>
+                <code id="ethBalanceValue">-</code>
+              </div>
+              <div class="row">
+                <span class="label">Ticket tokens (ERC-20)</span>
+                <code id="ticketBalanceValue">-</code>
+              </div>
+            </div>
+          </article>
+        </section>
+      </main>
+    </div>
+
+    <script src="../js/ui.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.2/dist/ethers.umd.min.js"></script>
+    <script src="../js/config.js"></script>
+    <script src="../js/deployed.inc.js"></script>
+    <script src="../js/blockchain.js"></script>
+  </body>
 </html>

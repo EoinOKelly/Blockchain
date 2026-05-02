@@ -1,5 +1,7 @@
 "use strict";
 
+const APP_CONFIG = window.getTicketRuntimeConfig();
+
 const connectWalletBtn = document.getElementById("connectWalletBtn");
 const useConnectedBtn = document.getElementById("useConnectedBtn");
 const checkBalancesBtn = document.getElementById("checkBalancesBtn");
@@ -11,20 +13,6 @@ const selectedWalletValue = document.getElementById("selectedWalletValue");
 const ethBalanceValue = document.getElementById("ethBalanceValue");
 const ticketBalanceValue = document.getElementById("ticketBalanceValue");
 const resultValue = document.getElementById("resultValue");
-
-const APP_CONFIG = {
-  chainIdHex: "0xaa36a7", // 11155111 Sepolia
-  chainName: "Sepolia",
-  readOnlyRpcUrl: "https://ethereum-sepolia-rpc.publicnode.com",
-  ticketPriceEth: "0.01",
-  vendorAddress: "", // Fill with the venue treasury wallet to enable buys
-  ticketTokenAddress: "", // Fill with deployed ticket token contract address
-};
-
-const ERC20_ABI = [
-  "function balanceOf(address owner) view returns (uint256)",
-  "function decimals() view returns (uint8)",
-];
 
 let browserProvider = null;
 let signer = null;
@@ -55,7 +43,8 @@ function formatAddress(address) {
 }
 
 async function getReadOnlyProvider() {
-  return new ethers.JsonRpcProvider(APP_CONFIG.readOnlyRpcUrl);
+  const cfg = window.getTicketRuntimeConfig();
+  return new ethers.JsonRpcProvider(cfg.readOnlyRpcUrl);
 }
 
 async function ensureSepolia(provider) {
@@ -65,14 +54,45 @@ async function ensureSepolia(provider) {
   }
 }
 
+function getInjectedEthereum() {
+  const eth = window.ethereum;
+  if (!eth) {
+    return null;
+  }
+  if (Array.isArray(eth.providers) && eth.providers.length > 0) {
+    return (
+      eth.providers.find((p) => p.isMetaMask) ||
+      eth.providers.find((p) => p.isCoinbaseWallet) ||
+      eth.providers[0]
+    );
+  }
+  return eth;
+}
+
+function noWalletHelpMessage() {
+  const hints = [];
+  if (window.location.protocol === "file:") {
+    hints.push(
+      "You opened this page as a local file (file://). Browser extensions usually do not inject window.ethereum there. Serve the folder over HTTP (for example run npx --yes serve src -p 5173 from frontend/src, then open pages via http://localhost:5173/pages/…).",
+    );
+  }
+  hints.push(
+    "Use Chrome or Edge with MetaMask (or another Web3 wallet) installed and unlocked. Embedded IDE previews often have no wallet extension.",
+  );
+  hints.push("Install from https://metamask.io if you do not have a wallet yet.");
+  return hints.join(" ");
+}
+
 async function connectWallet() {
-  if (!window.ethereum) {
-    setStatus("No wallet extension detected. Install MetaMask or similar.", true);
+  const injected = getInjectedEthereum();
+  if (!injected) {
+    setStatus(noWalletHelpMessage(), true);
+    setResult("Cannot connect: no injected wallet.");
     return;
   }
 
   try {
-    browserProvider = new ethers.BrowserProvider(window.ethereum);
+    browserProvider = new ethers.BrowserProvider(injected);
     await browserProvider.send("eth_requestAccounts", []);
     await ensureSepolia(browserProvider);
     signer = await browserProvider.getSigner();
@@ -81,6 +101,7 @@ async function connectWallet() {
     showConnectedWallet(address);
     setStatus(`Connected: ${formatAddress(address)}`);
     setResult("Wallet connected. Ready to check balances.");
+    await refreshDisplayedPrice();
   } catch (error) {
     setStatus(error.message || "Failed to connect wallet.", true);
     setResult("Wallet connection failed.");
@@ -96,14 +117,15 @@ function resolveWalletToCheck() {
 }
 
 async function readTicketBalance(provider, walletAddress) {
-  if (!APP_CONFIG.ticketTokenAddress) {
+  const cfg = window.getTicketRuntimeConfig();
+  if (!cfg.ticketTokenAddress) {
     return { display: "Not configured", numeric: null };
   }
 
-  const contract = new ethers.Contract(APP_CONFIG.ticketTokenAddress, ERC20_ABI, provider);
+  const contract = new ethers.Contract(cfg.ticketTokenAddress, window.TICKET_ERC20_ABI, provider);
   const [balanceRaw, decimals] = await Promise.all([
     contract.balanceOf(walletAddress),
-    contract.decimals().catch(() => 0),
+    contract.decimals().catch(() => 18),
   ]);
 
   const balance = Number(ethers.formatUnits(balanceRaw, decimals));
@@ -144,7 +166,7 @@ async function checkBalances() {
 
     const ticketHint =
       ticketBalance.numeric !== null && ticketBalance.numeric > 0
-        ? "Wallet currently holds at least one ticket."
+        ? "Wallet currently holds at least one ticket token."
         : "No ticket token currently detected for this wallet.";
 
     setStatus("Balances refreshed.");
@@ -158,6 +180,36 @@ async function checkBalances() {
   }
 }
 
+async function readOnChainTicketPriceWei() {
+  const cfg = window.getTicketRuntimeConfig();
+  if (!cfg.ticketTokenAddress) {
+    return null;
+  }
+  const provider = await getReadOnlyProvider();
+  const contract = new ethers.Contract(
+    cfg.ticketTokenAddress,
+    window.TICKET_CONTRACT_ABI,
+    provider,
+  );
+  return contract.ticketPriceWei();
+}
+
+async function refreshDisplayedPrice() {
+  if (!ticketPriceValue) {
+    return;
+  }
+  try {
+    const wei = await readOnChainTicketPriceWei();
+    if (wei !== null) {
+      ticketPriceValue.textContent = `${ethers.formatEther(wei)} ETH`;
+      return;
+    }
+  } catch {
+    /* fall through */
+  }
+  ticketPriceValue.textContent = "Deploy contract & fill deployed.inc.js";
+}
+
 async function buyOneTicket() {
   if (buyingInProgress) {
     return;
@@ -168,8 +220,12 @@ async function buyOneTicket() {
     return;
   }
 
-  if (!APP_CONFIG.vendorAddress || !ethers.isAddress(APP_CONFIG.vendorAddress)) {
-    setStatus("Vendor address is not configured in ticketing.js.", true);
+  const cfg = window.getTicketRuntimeConfig();
+  if (!cfg.ticketTokenAddress) {
+    setStatus(
+      "Ticket contract address is not set. Deploy TicketToken and update deployed.inc.js.",
+      true,
+    );
     return;
   }
 
@@ -179,15 +235,19 @@ async function buyOneTicket() {
   setResult("Waiting for wallet confirmation...");
 
   try {
-    const tx = await signer.sendTransaction({
-      to: APP_CONFIG.vendorAddress,
-      value: ethers.parseEther(APP_CONFIG.ticketPriceEth),
-    });
+    const contract = new ethers.Contract(
+      cfg.ticketTokenAddress,
+      window.TICKET_CONTRACT_ABI,
+      signer,
+    );
+    const priceWei = await contract.ticketPriceWei();
+    const tx = await contract.buyTickets(1, { value: priceWei });
 
-    setResult(`Transaction submitted: ${tx.hash}`);
+    const explorerLine = window.formatTxExplorerLink(tx.hash, "Submitted");
+    setResult(explorerLine);
     await tx.wait();
-    setStatus("Ticket purchase payment confirmed.");
-    setResult(`Purchase complete. Tx: ${tx.hash}`);
+    setStatus("Ticket purchase confirmed.");
+    setResult(window.formatTxExplorerLink(tx.hash, "Confirmed"));
     await checkBalances();
   } catch (error) {
     setStatus(error.message || "Ticket purchase failed.", true);
@@ -207,16 +267,28 @@ function useConnectedWallet() {
 }
 
 function init() {
-  ticketPriceValue.textContent = `${APP_CONFIG.ticketPriceEth} ETH`;
+  if (!ticketPriceValue || !selectedWalletValue) {
+    return;
+  }
   selectedWalletValue.textContent = "Not connected";
   ethBalanceValue.textContent = "-";
-  ticketBalanceValue.textContent = APP_CONFIG.ticketTokenAddress ? "-" : "Not configured";
+  const cfg = window.getTicketRuntimeConfig();
+  ticketBalanceValue.textContent = cfg.ticketTokenAddress ? "-" : "Not configured";
   setResult("Awaiting action");
+  refreshDisplayedPrice();
 }
 
-connectWalletBtn.addEventListener("click", connectWallet);
-useConnectedBtn.addEventListener("click", useConnectedWallet);
-checkBalancesBtn.addEventListener("click", checkBalances);
-buyTicketBtn.addEventListener("click", buyOneTicket);
+if (connectWalletBtn) {
+  connectWalletBtn.addEventListener("click", connectWallet);
+}
+if (useConnectedBtn) {
+  useConnectedBtn.addEventListener("click", useConnectedWallet);
+}
+if (checkBalancesBtn) {
+  checkBalancesBtn.addEventListener("click", checkBalances);
+}
+if (buyTicketBtn) {
+  buyTicketBtn.addEventListener("click", buyOneTicket);
+}
 
 init();
