@@ -1,8 +1,8 @@
 # Node
 frontend/node_modules/
-backend/node_modules/
-backend/artifacts/
-backend/cache/
+node_modules/
+artifacts/
+cache/
 npm-debug.log*
 
 # Python

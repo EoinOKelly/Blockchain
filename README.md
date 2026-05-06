@@ -1,18 +1,17 @@
 # Blockchain
 
 Web3 ticketing DApp project using:
-- Solidity ERC-20 ticket token + payable purchase on **Sepolia**
-- HTML/CSS/JavaScript frontend (`ethers` UMD + static pages)
+- Solidity ERC-20 ticket token + payable purchase on **Sepolia** (`contracts/`, Hardhat at repo root)
+- HTML/CSS/JavaScript frontend (`ethers` UMD + static pages under `frontend/src/`)
 - GitHub Actions for UI unit tests and contract tests
 
 ### Quick path (assignment workflow)
 
-1. **Contracts**: `cd backend && npm ci && npx hardhat test`
-2. **Deploy Sepolia**: configure `backend/.env`, then `npx hardhat run scripts/deploy.js --network sepolia` — this regenerates `frontend/src/js/deployed.inc.js` with the contract and vendor addresses.
-3. **Frontend**: from project root, serve static files (example): `cd frontend/src && npx --yes serve . -p 5173` — open `pages/buy-ticket.html` over **http://** (not `file://`) so MetaMask injects `window.ethereum`.
-4. **Report evidence**: save Sepolia Etherscan links for deployment, `buyTickets`, token `transfer` (return), and faucet top-ups for deployer / purchaser / vendor wallets.
-
-See [backend/README.md](backend/README.md) for deploy and verify details.
+1. **Contracts**: from repo root, `npm ci && npx hardhat test`
+2. **Deploy Sepolia**: copy `.env.example` to `.env` and fill in keys, then `npm run deploy:sepolia` — this writes `deployments/chain-*-TicketToken.json` and regenerates `frontend/src/js/deployed.inc.js` with the contract and vendor addresses.
+3. **Frontend**: serve static files (example): `cd frontend/src && npx --yes serve . -p 5173` — open `pages/buy-ticket.html` over **http://** (not `file://`) so MetaMask injects `window.ethereum`.
+4. **Verify on Etherscan** (optional): set `CONTRACT_ADDRESS` in `.env`, then `npx hardhat run scripts/verify.js --network sepolia`
+5. **Report evidence**: save Sepolia Etherscan links for deployment, `buyTickets`, token `transfer` (return), and faucet top-ups for deployer / purchaser / vendor wallets.
 
 ## Dependency Management With uv
 
@@ -66,4 +65,4 @@ npm run test:ui
 ## README structure guidance
 
 A single root `README.md` is enough for this project right now.
-If the project grows, you can later add focused docs in `frontend/README.md` and `backend/README.md` without changing the current setup.
+If the project grows, you can later add focused docs under `docs/` or `frontend/` without changing the current setup.
