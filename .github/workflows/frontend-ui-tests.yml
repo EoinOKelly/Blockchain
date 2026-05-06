@@ -9,9 +9,6 @@ on:
 jobs:
   contract-tests:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: backend
 
     steps:
       - name: Checkout repository
@@ -22,9 +19,9 @@ jobs:
         with:
           node-version: 20
           cache: npm
-          cache-dependency-path: backend/package-lock.json
+          cache-dependency-path: package-lock.json
 
-      - name: Install backend dependencies
+      - name: Install contract tooling dependencies
         run: npm ci
 
       - name: Run Hardhat tests

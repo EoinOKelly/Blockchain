@@ -1,7 +1,7 @@
 "use strict";
 
 /**
- * Base app config. After deploying to Sepolia, run `backend` deploy script or edit
+ * Base app config. After deploying to Sepolia, run `npm run deploy:sepolia` (repo root) or edit
  * `deployed.inc.js` with your contract address and vendor address.
  */
 window.TICKET_APP_CONFIG = {
