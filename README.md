@@ -11,7 +11,7 @@ Web3 ticketing DApp project using:
 2. **Deploy Sepolia**: copy `.env.example` to `.env` and fill in keys, then `npm run deploy:sepolia` — this writes `deployments/chain-*-TicketToken.json` and regenerates `frontend/src/js/deployed.inc.js` with the contract and vendor addresses.
 3. **Frontend**: serve static files (example): `cd frontend/src && npx --yes serve . -p 5173` — open `pages/buy-ticket.html` over **http://** (not `file://`) so MetaMask injects `window.ethereum`.
 4. **Verify on Etherscan** (optional): set `CONTRACT_ADDRESS` in `.env`, then `npx hardhat run scripts/verify.js --network sepolia`
-5. **Report evidence**: save Sepolia Etherscan links for deployment, `buyTickets`, token `transfer` (return), and faucet top-ups for deployer / purchaser / vendor wallets.
+5. **Report evidence**: save Sepolia Etherscan links for deployment, `buyTickets`, token `transfer` to vendor, and faucet top-ups for deployer / purchaser / vendor wallets.
 
 ## Dependency Management With uv
 

@@ -1,0 +1,9 @@
+{
+  "contractName": "TicketToken",
+  "address": "0xC624895c31FE16b552ac7966C73039276B95a888",
+  "chainId": 11155111,
+  "vendorAddress": "0x906b4a0773828D6528329ED486ae59F9e08cd5bf",
+  "ticketPriceWei": "10000000000000000",
+  "deployedAt": "2026-05-15T12:27:00.700Z",
+  "deployer": "0xBe3421B1E93A1885D1Aa4bf355c8cEeCC4544695"
+}

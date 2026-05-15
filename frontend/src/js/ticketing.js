@@ -12,6 +12,7 @@ const ticketPriceValue = document.getElementById("ticketPriceValue");
 const selectedWalletValue = document.getElementById("selectedWalletValue");
 const ethBalanceValue = document.getElementById("ethBalanceValue");
 const ticketBalanceValue = document.getElementById("ticketBalanceValue");
+const ticketsRemainingValue = document.getElementById("ticketsRemainingValue");
 const resultValue = document.getElementById("resultValue");
 
 let browserProvider = null;
@@ -169,6 +170,8 @@ async function checkBalances() {
         ? "Wallet currently holds at least one ticket token."
         : "No ticket token currently detected for this wallet.";
 
+    await refreshTicketsRemaining();
+
     setStatus("Balances refreshed.");
     setResult(ticketHint);
   } catch (error) {
@@ -177,6 +180,41 @@ async function checkBalances() {
   } finally {
     checkingInProgress = false;
     checkBalancesBtn.disabled = false;
+  }
+}
+
+async function readTicketsRemaining() {
+  const cfg = window.getTicketRuntimeConfig();
+  if (!cfg.ticketTokenAddress) {
+    return null;
+  }
+  const provider = await getReadOnlyProvider();
+  const contract = new ethers.Contract(
+    cfg.ticketTokenAddress,
+    window.TICKET_CONTRACT_ABI,
+    provider,
+  );
+  const [maxTickets, totalSupply, decimals] = await Promise.all([
+    contract.maxTickets(),
+    contract.totalSupply(),
+    contract.decimals().catch(() => 18),
+  ]);
+  const oneTicket = 10n ** BigInt(decimals);
+  const minted = totalSupply / oneTicket;
+  const remaining = Number(maxTickets - minted);
+  return Math.max(0, remaining);
+}
+
+async function refreshTicketsRemaining() {
+  if (!ticketsRemainingValue) {
+    return;
+  }
+  try {
+    const remaining = await readTicketsRemaining();
+    ticketsRemainingValue.textContent =
+      remaining === null ? "-" : String(remaining);
+  } catch {
+    ticketsRemainingValue.textContent = "-";
   }
 }
 
@@ -249,8 +287,15 @@ async function buyOneTicket() {
     setStatus("Ticket purchase confirmed.");
     setResult(window.formatTxExplorerLink(tx.hash, "Confirmed"));
     await checkBalances();
+    await refreshTicketsRemaining();
   } catch (error) {
-    setStatus(error.message || "Ticket purchase failed.", true);
+    const msg = error.message || "Ticket purchase failed.";
+    setStatus(
+      msg.includes("ticket cap exceeded")
+        ? "All 100 tickets have been sold. No more can be minted."
+        : msg,
+      true,
+    );
     setResult("Transaction failed or was rejected.");
   } finally {
     buyingInProgress = false;
@@ -276,6 +321,7 @@ function init() {
   ticketBalanceValue.textContent = cfg.ticketTokenAddress ? "-" : "Not configured";
   setResult("Awaiting action");
   refreshDisplayedPrice();
+  refreshTicketsRemaining();
 }
 
 if (connectWalletBtn) {

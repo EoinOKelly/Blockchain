@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Return Ticket | Ticketing DApp</title>
+    <title>Transfer to Vendor | Ticketing DApp</title>
     <link rel="stylesheet" href="../styles/main.css" />
   </head>
   <body>
@@ -25,29 +25,30 @@
         >
         <a class="nav-link" href="./balances.html"><span class="link-text">Balances</span></a>
         <a class="nav-link" href="./buy-ticket.html"><span class="link-text">Buy Ticket</span></a>
-        <a class="nav-link active" href="./return-ticket.html"
-          ><span class="link-text">Return Ticket</span></a
+        <a class="nav-link active" href="./transfer-to-vendor.html"
+          ><span class="link-text">Transfer to Vendor</span></a
         >
       </aside>
 
       <main class="main-content">
         <section class="container">
           <article class="card">
-            <h1>Return Ticket Token</h1>
+            <h1>Transfer Ticket to Vendor</h1>
             <p class="muted">
-              Transfer one ticket token back to the vendor address configured with your deployed
-              contract (standard ERC-20 transfer).
+              Send one ticket token to the venue vendor address. This does not refund Sepolia ETH;
+              it only moves your ERC-20 ticket token on-chain (for example after the event or if
+              you cannot attend).
             </p>
             <div class="actions">
               <button id="connectWalletBtn" type="button">Connect Wallet</button>
               <button id="checkBalanceBtn" type="button">Refresh Ticket Balance</button>
-              <button id="returnTicketBtn" type="button">Return 1 Ticket</button>
+              <button id="transferToVendorBtn" type="button">Transfer 1 Ticket to Vendor</button>
             </div>
             <p id="statusMessage" class="status" aria-live="polite"></p>
           </article>
 
           <article class="card">
-            <h2>Return Details</h2>
+            <h2>Transfer Details</h2>
             <div class="details">
               <div class="row">
                 <span class="label">Recipient (Vendor) Address</span>
@@ -75,6 +76,6 @@
     <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.2/dist/ethers.umd.min.js"></script>
     <script src="../js/config.js"></script>
     <script src="../js/deployed.inc.js"></script>
-    <script src="../js/return-ticket.js"></script>
+    <script src="../js/transfer-to-vendor.js"></script>
   </body>
 </html>

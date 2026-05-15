@@ -27,7 +27,8 @@ async function main() {
 
   console.log("TicketToken deployed to:", address);
   console.log("Chain ID:", network.chainId.toString());
-  console.log("Vendor (return-to address):", vendorAddress);
+  console.log("Vendor (transfer-to address):", vendorAddress);
+  console.log("Max tickets (mint cap):", "100");
   console.log("Ticket price (wei):", ticketPriceWei.toString());
 
   const artifactPath = path.join(__dirname, "..", "deployments", `chain-${network.chainId}-TicketToken.json`);
