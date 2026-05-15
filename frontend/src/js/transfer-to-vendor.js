@@ -1,13 +1,8 @@
 "use strict";
 
-const connectWalletBtn = document.getElementById("connectWalletBtn");
-const checkBalanceBtn = document.getElementById("checkBalanceBtn");
-const transferToVendorBtn = document.getElementById("transferToVendorBtn");
-const statusMessage = document.getElementById("statusMessage");
-const vendorAddressValue = document.getElementById("vendorAddressValue");
-const senderWalletValue = document.getElementById("senderWalletValue");
-const ticketBalanceValue = document.getElementById("ticketBalanceValue");
-const resultValue = document.getElementById("resultValue");
+function el(id) {
+  return document.getElementById(id);
+}
 
 let browserProvider = null;
 let signer = null;
@@ -15,12 +10,19 @@ let connectedWalletAddress = "";
 let transferInProgress = false;
 
 function setStatus(message, isError = false) {
+  const statusMessage = el("statusMessage");
+  if (!statusMessage) {
+    return;
+  }
   statusMessage.textContent = message;
   statusMessage.classList.toggle("error", isError);
 }
 
 function setResult(text) {
-  resultValue.textContent = text;
+  const resultValue = el("resultValue");
+  if (resultValue) {
+    resultValue.textContent = text;
+  }
 }
 
 function formatAddress(address) {
@@ -59,8 +61,11 @@ function getInjectedEthereum() {
 
 function renderVendorAddress() {
   const cfg = window.getTicketRuntimeConfig();
-  vendorAddressValue.textContent =
-    cfg.vendorAddress || "Not configured (deploy & fill deployed.inc.js)";
+  const vendorAddressValue = el("vendorAddressValue");
+  if (vendorAddressValue) {
+    vendorAddressValue.textContent =
+      cfg.vendorAddress || "Not configured (deploy & fill deployed.inc.js)";
+  }
 }
 
 async function connectWallet() {
@@ -78,7 +83,10 @@ async function connectWallet() {
     await ensureSepolia(browserProvider);
     signer = await browserProvider.getSigner();
     connectedWalletAddress = await signer.getAddress();
-    senderWalletValue.textContent = connectedWalletAddress;
+    const senderWalletValue = el("senderWalletValue");
+    if (senderWalletValue) {
+      senderWalletValue.textContent = connectedWalletAddress;
+    }
     setStatus(`Connected: ${formatAddress(connectedWalletAddress)}`);
     setResult("Connected. Check balance or transfer one ticket to the vendor.");
     await refreshTicketBalance();
@@ -89,6 +97,10 @@ async function connectWallet() {
 
 async function refreshTicketBalance() {
   const cfg = window.getTicketRuntimeConfig();
+  const ticketBalanceValue = el("ticketBalanceValue");
+  if (!ticketBalanceValue) {
+    return;
+  }
   if (!cfg.ticketTokenAddress || !connectedWalletAddress) {
     ticketBalanceValue.textContent = cfg.ticketTokenAddress ? "-" : "Not configured";
     return;
@@ -98,7 +110,7 @@ async function refreshTicketBalance() {
     const contract = new ethers.Contract(cfg.ticketTokenAddress, window.TICKET_ERC20_ABI, provider);
     const [raw, decimals] = await Promise.all([
       contract.balanceOf(connectedWalletAddress),
-      contract.decimals().catch(() => 18),
+      contract.decimals().catch(() => 0),
     ]);
     ticketBalanceValue.textContent = ethers.formatUnits(raw, decimals);
   } catch (error) {
@@ -121,6 +133,11 @@ async function transferOneTicketToVendor() {
     return;
   }
 
+  const transferToVendorBtn = el("transferToVendorBtn");
+  if (!transferToVendorBtn) {
+    return;
+  }
+
   transferInProgress = true;
   transferToVendorBtn.disabled = true;
   setStatus("Submitting token transfer to vendor...");
@@ -128,9 +145,7 @@ async function transferOneTicketToVendor() {
 
   try {
     const contract = new ethers.Contract(cfg.ticketTokenAddress, window.TICKET_ERC20_ABI, signer);
-    const decimals = await contract.decimals().catch(() => 18);
-    const one = ethers.parseUnits("1", decimals);
-    const tx = await contract.transfer(cfg.vendorAddress, one);
+    const tx = await contract.transferTicketsToVendor(1);
 
     setResult(window.formatTxExplorerLink(tx.hash, "Submitted"));
     await tx.wait();
@@ -148,19 +163,43 @@ async function transferOneTicketToVendor() {
 
 function init() {
   renderVendorAddress();
-  senderWalletValue.textContent = "Not connected";
-  ticketBalanceValue.textContent = "-";
+  const senderWalletValue = el("senderWalletValue");
+  const ticketBalanceValue = el("ticketBalanceValue");
+  if (senderWalletValue) {
+    senderWalletValue.textContent = "Not connected";
+  }
+  if (ticketBalanceValue) {
+    ticketBalanceValue.textContent = "-";
+  }
   setResult("Awaiting action");
 }
 
-if (connectWalletBtn) {
-  connectWalletBtn.addEventListener("click", connectWallet);
-}
-if (checkBalanceBtn) {
-  checkBalanceBtn.addEventListener("click", refreshTicketBalance);
-}
-if (transferToVendorBtn) {
-  transferToVendorBtn.addEventListener("click", transferOneTicketToVendor);
+function bindTransferPage() {
+  const connectWalletBtn = el("connectWalletBtn");
+  const checkBalanceBtn = el("checkBalanceBtn");
+  const transferToVendorBtn = el("transferToVendorBtn");
+  if (connectWalletBtn) {
+    connectWalletBtn.addEventListener("click", connectWallet);
+  }
+  if (checkBalanceBtn) {
+    checkBalanceBtn.addEventListener("click", refreshTicketBalance);
+  }
+  if (transferToVendorBtn) {
+    transferToVendorBtn.addEventListener("click", transferOneTicketToVendor);
+  }
+  init();
 }
 
-init();
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", bindTransferPage);
+} else {
+  bindTransferPage();
+}
+
+globalThis.__ticketDappTestHooks = globalThis.__ticketDappTestHooks || {};
+globalThis.__ticketDappTestHooks.transfer = {
+  connectWallet,
+  transferOneTicketToVendor,
+  refreshTicketBalance,
+  bindTransferPage,
+};

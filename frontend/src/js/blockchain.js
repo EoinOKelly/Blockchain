@@ -1,22 +1,30 @@
 "use strict";
 
-const walletAddressInput = document.getElementById("walletAddressInput");
-const refreshBalanceBtn = document.getElementById("refreshBalanceBtn");
-const statusMessage = document.getElementById("statusMessage");
-const resolvedAddressValue = document.getElementById("resolvedAddressValue");
-const ethBalanceValue = document.getElementById("ethBalanceValue");
-const ticketBalanceValue = document.getElementById("ticketBalanceValue");
+function el(id) {
+  return document.getElementById(id);
+}
 
 let refreshInProgress = false;
 
 function setStatus(message, isError = false) {
+  const statusMessage = el("statusMessage");
+  if (!statusMessage) {
+    return;
+  }
   statusMessage.textContent = message;
   statusMessage.classList.toggle("error", isError);
 }
 
 function setBalancePlaceholders() {
-  resolvedAddressValue.textContent = "-";
-  ethBalanceValue.textContent = "-";
+  const resolvedAddressValue = el("resolvedAddressValue");
+  const ethBalanceValue = el("ethBalanceValue");
+  const ticketBalanceValue = el("ticketBalanceValue");
+  if (resolvedAddressValue) {
+    resolvedAddressValue.textContent = "-";
+  }
+  if (ethBalanceValue) {
+    ethBalanceValue.textContent = "-";
+  }
   if (ticketBalanceValue) {
     ticketBalanceValue.textContent = "-";
   }
@@ -29,6 +37,7 @@ async function getReadOnlyProvider() {
 
 async function readTicketBalance(provider, walletAddress) {
   const cfg = window.getTicketRuntimeConfig();
+  const ticketBalanceValue = el("ticketBalanceValue");
   if (!ticketBalanceValue || !cfg.ticketTokenAddress) {
     return { display: ticketBalanceValue ? "Not configured" : "-", numeric: null };
   }
@@ -36,7 +45,7 @@ async function readTicketBalance(provider, walletAddress) {
   const contract = new ethers.Contract(cfg.ticketTokenAddress, window.TICKET_ERC20_ABI, provider);
   const [balanceRaw, decimals] = await Promise.all([
     contract.balanceOf(walletAddress),
-    contract.decimals().catch(() => 18),
+    contract.decimals().catch(() => 0),
   ]);
 
   const balance = Number(ethers.formatUnits(balanceRaw, decimals));
@@ -45,6 +54,12 @@ async function readTicketBalance(provider, walletAddress) {
 
 async function fetchSepoliaBalance() {
   if (refreshInProgress) {
+    return;
+  }
+
+  const walletAddressInput = el("walletAddressInput");
+  const refreshBalanceBtn = el("refreshBalanceBtn");
+  if (!walletAddressInput || !refreshBalanceBtn) {
     return;
   }
 
@@ -73,8 +88,15 @@ async function fetchSepoliaBalance() {
     ]);
     const balanceEth = Number(ethers.formatEther(balanceRaw)).toFixed(6);
 
-    resolvedAddressValue.textContent = walletAddress;
-    ethBalanceValue.textContent = `${balanceEth} ETH`;
+    const resolvedAddressValue = el("resolvedAddressValue");
+    const ethBalanceValue = el("ethBalanceValue");
+    const ticketBalanceValue = el("ticketBalanceValue");
+    if (resolvedAddressValue) {
+      resolvedAddressValue.textContent = walletAddress;
+    }
+    if (ethBalanceValue) {
+      ethBalanceValue.textContent = `${balanceEth} ETH`;
+    }
     if (ticketBalanceValue) {
       ticketBalanceValue.textContent = ticketBalance.display;
     }
@@ -88,6 +110,18 @@ async function fetchSepoliaBalance() {
   }
 }
 
-if (refreshBalanceBtn) {
-  refreshBalanceBtn.addEventListener("click", fetchSepoliaBalance);
+function bindBalancePage() {
+  const refreshBalanceBtn = el("refreshBalanceBtn");
+  if (refreshBalanceBtn) {
+    refreshBalanceBtn.addEventListener("click", fetchSepoliaBalance);
+  }
 }
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", bindBalancePage);
+} else {
+  bindBalancePage();
+}
+
+globalThis.__ticketDappTestHooks = globalThis.__ticketDappTestHooks || {};
+globalThis.__ticketDappTestHooks.blockchain = { fetchSepoliaBalance, bindBalancePage };

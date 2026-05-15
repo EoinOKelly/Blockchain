@@ -24,6 +24,7 @@ describe("TicketToken", function () {
     expect(await token.owner()).to.equal(owner.address);
     expect(await token.vendor()).to.equal(vendor.address);
     expect(await token.ticketPriceWei()).to.equal(ticketPrice);
+    expect(await token.decimals()).to.equal(0n);
   });
 
   it("reverts deploy when vendor is zero address", async function () {
@@ -35,6 +36,15 @@ describe("TicketToken", function () {
     ).to.be.revertedWith("TicketToken: vendor is zero address");
   });
 
+  it("reverts deploy when ticket price is zero", async function () {
+    const [owner, vendor] = await ethers.getSigners();
+    const TicketToken = await ethers.getContractFactory("TicketToken");
+
+    await expect(
+      TicketToken.deploy("Event Ticket", "ETIX", 0n, vendor.address, owner.address)
+    ).to.be.revertedWith("TicketToken: price is zero");
+  });
+
   it("mints when buyer pays exact ETH", async function () {
     const { token, buyer, ticketPrice } = await deployFixture();
 
@@ -42,8 +52,7 @@ describe("TicketToken", function () {
       .to.emit(token, "TicketPurchased")
       .withArgs(buyer.address, 1n, ticketPrice);
 
-    const bal = await token.balanceOf(buyer.address);
-    expect(bal).to.equal(ethers.parseUnits("1", 18));
+    expect(await token.balanceOf(buyer.address)).to.equal(1n);
   });
 
   it("mints the right amount for multiple tickets", async function () {
@@ -55,8 +64,22 @@ describe("TicketToken", function () {
       .to.emit(token, "TicketPurchased")
       .withArgs(buyer.address, count, totalCost);
 
-    expect(await token.balanceOf(buyer.address)).to.equal(ethers.parseUnits("3", 18));
+    expect(await token.balanceOf(buyer.address)).to.equal(count);
     expect(await ethers.provider.getBalance(await token.getAddress())).to.equal(totalCost);
+  });
+
+  it("refunds ETH when buyer overpays", async function () {
+    const { token, buyer, ticketPrice } = await deployFixture();
+    const overpay = ticketPrice + ethers.parseEther("0.005");
+    const buyerBefore = await ethers.provider.getBalance(buyer.address);
+
+    const tx = await token.connect(buyer).buyTickets(1, { value: overpay });
+    const receipt = await tx.wait();
+    const gasCost = receipt.gasUsed * receipt.gasPrice;
+    const buyerAfter = await ethers.provider.getBalance(buyer.address);
+
+    expect(await token.balanceOf(buyer.address)).to.equal(1n);
+    expect(buyerBefore - buyerAfter - gasCost).to.equal(ticketPrice);
   });
 
   it("reverts when buying zero tickets", async function () {
@@ -67,12 +90,12 @@ describe("TicketToken", function () {
     );
   });
 
-  it("reverts on wrong ETH amount", async function () {
+  it("reverts on insufficient ETH", async function () {
     const { token, buyer, ticketPrice } = await deployFixture();
     const wrong = ticketPrice - 1n;
 
     await expect(token.connect(buyer).buyTickets(1, { value: wrong })).to.be.revertedWith(
-      "TicketToken: incorrect ETH amount"
+      "TicketToken: insufficient ETH"
     );
   });
 
@@ -99,6 +122,12 @@ describe("TicketToken", function () {
     );
   });
 
+  it("reverts withdrawEth when contract balance is zero", async function () {
+    const { token, owner } = await deployFixture();
+
+    await expect(token.connect(owner).withdrawEth()).to.be.revertedWith("TicketToken: nothing to withdraw");
+  });
+
   it("allows owner to update ticket price and enforces new price", async function () {
     const { token, owner, buyer } = await deployFixture();
     const newPrice = ethers.parseEther("0.02");
@@ -109,12 +138,18 @@ describe("TicketToken", function () {
     expect(await token.ticketPriceWei()).to.equal(newPrice);
 
     await expect(token.connect(buyer).buyTickets(1, { value: ethers.parseEther("0.01") })).to.be.revertedWith(
-      "TicketToken: incorrect ETH amount"
+      "TicketToken: insufficient ETH"
     );
 
     await expect(token.connect(buyer).buyTickets(1, { value: newPrice }))
       .to.emit(token, "TicketPurchased")
       .withArgs(buyer.address, 1n, newPrice);
+  });
+
+  it("reverts setTicketPriceWei when price is zero", async function () {
+    const { token, owner } = await deployFixture();
+
+    await expect(token.connect(owner).setTicketPriceWei(0n)).to.be.revertedWith("TicketToken: price is zero");
   });
 
   it("reverts setTicketPriceWei when called by non-owner", async function () {
@@ -154,24 +189,92 @@ describe("TicketToken", function () {
 
   it("reverts when purchase would exceed the 100-ticket cap", async function () {
     const { token, buyer, ticketPrice } = await deployFixture();
-    const one = ethers.parseUnits("1", 18);
 
     await token.connect(buyer).buyTickets(100, { value: ticketPrice * 100n });
-    expect(await token.totalSupply()).to.equal(one * 100n);
+    expect(await token.totalSupply()).to.equal(100n);
 
     await expect(
       token.connect(buyer).buyTickets(1, { value: ticketPrice })
     ).to.be.revertedWith("TicketToken: ticket cap exceeded");
   });
 
-  it("lets holder transfer tokens to vendor", async function () {
+  it("returns tickets to vendor via transferTicketsToVendor", async function () {
     const { token, buyer, vendor, ticketPrice } = await deployFixture();
 
     await token.connect(buyer).buyTickets(1, { value: ticketPrice });
-    const oneToken = ethers.parseUnits("1", 18);
 
-    await token.connect(buyer).transfer(vendor.address, oneToken);
-    expect(await token.balanceOf(vendor.address)).to.equal(oneToken);
+    await expect(token.connect(buyer).transferTicketsToVendor(1))
+      .to.emit(token, "TicketsReturnedToVendor")
+      .withArgs(buyer.address, 1n);
+
+    expect(await token.balanceOf(vendor.address)).to.equal(1n);
     expect(await token.balanceOf(buyer.address)).to.equal(0n);
+  });
+
+  it("reverts transferTicketsToVendor with zero count", async function () {
+    const { token, buyer, ticketPrice } = await deployFixture();
+
+    await token.connect(buyer).buyTickets(1, { value: ticketPrice });
+    await expect(token.connect(buyer).transferTicketsToVendor(0)).to.be.revertedWith(
+      "TicketToken: zero ticket count"
+    );
+  });
+
+  it("exposes MAX_TICKETS and standard ERC-20 metadata", async function () {
+    const { token } = await deployFixture();
+
+    expect(await token.MAX_TICKETS()).to.equal(100n);
+    expect(await token.decimals()).to.equal(0n);
+    expect(await token.totalSupply()).to.equal(0n);
+  });
+
+  it("allows buying exactly up to the cap in one purchase", async function () {
+    const { token, buyer, ticketPrice } = await deployFixture();
+
+    await token.connect(buyer).buyTickets(100, { value: ticketPrice * 100n });
+    expect(await token.totalSupply()).to.equal(100n);
+    expect(await token.balanceOf(buyer.address)).to.equal(100n);
+  });
+
+  it("reverts when buyer underpays for multiple tickets", async function () {
+    const { token, buyer, ticketPrice } = await deployFixture();
+    const count = 2n;
+
+    await expect(
+      token.connect(buyer).buyTickets(count, { value: ticketPrice })
+    ).to.be.revertedWith("TicketToken: insufficient ETH");
+  });
+
+  it("allows peer-to-peer ERC-20 transfer between holders", async function () {
+    const { token, buyer, owner, ticketPrice } = await deployFixture();
+
+    await token.connect(buyer).buyTickets(2, { value: ticketPrice * 2n });
+    await token.connect(buyer).transfer(owner.address, 1n);
+
+    expect(await token.balanceOf(owner.address)).to.equal(1n);
+    expect(await token.balanceOf(buyer.address)).to.equal(1n);
+  });
+
+  it("withdrawEth sends accumulated ETH to the owner", async function () {
+    const { token, owner, buyer, ticketPrice } = await deployFixture();
+
+    await token.connect(buyer).buyTickets(1, { value: ticketPrice });
+    const ownerBefore = await ethers.provider.getBalance(owner.address);
+
+    const tx = await token.connect(owner).withdrawEth();
+    const receipt = await tx.wait();
+    const gasCost = receipt.gasUsed * receipt.gasPrice;
+    const ownerAfter = await ethers.provider.getBalance(owner.address);
+
+    expect(ownerAfter + gasCost - ownerBefore).to.equal(ticketPrice);
+    expect(await ethers.provider.getBalance(await token.getAddress())).to.equal(0n);
+  });
+
+  it("accumulates ETH from multiple purchases until withdrawn", async function () {
+    const { token, buyer, ticketPrice } = await deployFixture();
+    const addr = await token.getAddress();
+
+    await token.connect(buyer).buyTickets(2, { value: ticketPrice * 2n });
+    expect(await ethers.provider.getBalance(addr)).to.equal(ticketPrice * 2n);
   });
 });

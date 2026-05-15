@@ -1,241 +1,134 @@
 # Web3 Ticketing DApp — Project Report
 
-**Module:** Blockchain (Year 2)  
-**Network:** Ethereum Sepolia testnet (Chain ID `11155111`)  
-**Repository:** Blockchain ticketing DApp (Hardhat + static HTML/JS frontend)
+Eoin O'Kelly · 24417491  
+Blockchain, Year 2  
+Repository: https://github.com/EoinOKelly/Blockchain  
+Network: Ethereum Sepolia testnet
 
----
+## 1. Introduction
 
-## 1. Executive summary
+For this assignment I built a small ticketing DApp on Sepolia. Attendees buy an ERC-20 token (ETIX) by sending test ETH to a smart contract. A doorman can open the balance page, enter an attendee’s wallet address, and see whether they hold at least one ticket. When the attendee enters the event, they send that token to the vendor’s address. No ETH is refunded — only the ticket token moves.
 
-This project is a **Web3 distributed application** for event ticketing. Attendees buy **ERC-20 ticket tokens** (`ETIX`) by paying **native Sepolia ETH** into a Solidity smart contract. A **doorman** checks any wallet’s token balance on a read-only page; a **venue vendor** receives tokens when attendees **transfer tickets back** (no ETH refund). The contract owner (deployer) can withdraw accumulated sale ETH.
-
-Development used **Cursor AI** under a *Students as Managers of AI* workflow: requirements were broken into prompts, outputs were reviewed and corrected (e.g. Sepolia network setup, deploy TLS issues, renaming “return” to **Transfer to Vendor**, adding a **100-ticket mint cap**). Full prompt traceability is in [`PROMPTS_SUBMISSION.md`](PROMPTS_SUBMISSION.md).
-
----
+I used Cursor for scaffolding and debugging (especially MetaMask and Sepolia setup), but I deployed the contract, ran the demo wallets, and checked all transactions on Etherscan myself. A full list of my AI prompts is in `PROMPTS_SUBMISSION.md`.
 
 ## 2. Code overview
 
-### 2.1 Repository structure
+The project is a Hardhat backend with a static HTML/JavaScript frontend. There is no separate API server; the browser talks to Sepolia through MetaMask or a public RPC URL.
 
-| Path | Purpose |
-|------|---------|
-| `contracts/TicketToken.sol` | ERC-20 + `buyTickets` payable in ETH; vendor address; 100-ticket cap |
-| `scripts/deploy.js` | Deploy to Sepolia; writes `deployments/` and `frontend/src/js/deployed.inc.js` |
-| `scripts/verify.js` | Optional Etherscan verification |
-| `test/TicketToken.test.js` | Hardhat tests (15 cases including cap and transfer) |
-| `frontend/src/` | Static DApp: pages, `ethers` v6 (CDN), shared config |
-| `hardhat.config.js` | Solidity 0.8.20, Sepolia network from `.env` |
+Main parts of the repo:
 
-### 2.2 Smart contract (`TicketToken`)
+- `contracts/TicketToken.sol` — ERC-20 ticket token with a payable `buyTickets` function and a maximum of 100 tickets.
+- `scripts/deploy.js` — deploys to Sepolia and updates `frontend/src/js/deployed.inc.js` with the contract and vendor addresses.
+- `test/TicketToken.test.js` — Hardhat unit tests for the contract.
+- `frontend/src/` — pages for creating a wallet, checking balances, buying a ticket, and transferring back to the vendor.
 
-- **ERC-20** (OpenZeppelin): name `Event Ticket`, symbol `ETIX`, 18 decimals.
-- **`buyTickets(uint256 ticketCount)`** (payable): caller must send exactly `ticketPriceWei × ticketCount`; contract mints `ticketCount × 10^decimals` tokens to `msg.sender`.
-- **`MAX_TICKETS = 100`**: `totalSupply` after mint must not exceed 100 ticket units.
-- **`vendor`**: configured at deploy; used by the frontend as the transfer destination (not automatic on-chain).
-- **`withdrawEth()`** (owner only): sends contract ETH balance to owner.
-- **Events:** `TicketPurchased`, `TicketPriceUpdated`, `VendorUpdated`.
+The contract mints one token per ticket (0 decimals). Purchasers call `buyTickets` with the correct amount of ETH. To hand in a ticket they call `transferTicketsToVendor`, which always sends tokens to the vendor address set at deploy time. ETH from sales stays in the contract until the owner runs `withdrawEth`. The frontend loads the deployed contract address from `deployed.inc.js` after each deploy.
 
-ETH from sales is held **in the contract** until the owner withdraws; the vendor does **not** receive ETH from purchases.
+### Testing
 
-### 2.3 Frontend pages
+I used AI to help write the first tests, then expanded them myself as the contract and pages changed. Hardhat has **26 tests** on `TicketToken` — things like buying with the right amount of ETH, hitting the 100-ticket cap, `transferTicketsToVendor`, and owner-only functions. The frontend uses Vitest: **23 tests** across six files (wallet, balances, buy ticket, transfer to vendor, config, sidebar). GitHub Actions runs Hardhat tests, contract coverage, and the UI tests on every pull request. Before I submit I run `npx hardhat test` and `npm run test:ui` locally to make sure nothing is broken.
 
-| Page | File | Function |
-|------|------|----------|
-| Home | `index.html` | Navigation hub |
-| Create wallet | `create-wallet.html` + `wallet.js` | `ethers.Wallet.createRandom()`, display address/key/mnemonic, download JSON |
-| Balances | `balances.html` + `blockchain.js` | Read-only Sepolia ETH + ETIX balance for **any** address |
-| Buy ticket | `buy-ticket.html` + `ticketing.js` | MetaMask connect, Sepolia check, `buyTickets(1)`, tickets remaining |
-| Transfer to vendor | `transfer-to-vendor.html` + `transfer-to-vendor.js` | ERC-20 `transfer(vendor, 1 ticket)` — **no ETH refund** |
+Commits follow Commitizen via `uv run cz commit`.
 
-Configuration merges `config.js` (chain, RPC) with `deployed.inc.js` (contract + vendor addresses after deploy).
+## 3. Design
 
-### 2.4 Tooling and quality assurance
+The flow I tested end-to-end:
 
-- **Hardhat:** compile, test, deploy.
-- **Frontend:** Vitest UI tests (`frontend/tests/ui/`).
-- **CI:** GitHub Actions (contract + UI tests).
-- **Python `uv`:** Commitizen / dev tooling ([`README.md`](README.md)).
+1. Deploy `TicketToken` and copy the address into the frontend config.
+2. Fund wallets on Sepolia (faucet / simple ETH transfers).
+3. Buyer connects MetaMask, buys one ticket on the buy page.
+4. Doorman checks the buyer’s address on the balance page (ETIX balance ≥ 1).
+5. Buyer uses the transfer page to send one ETIX to the vendor.
 
----
+One balance page covers all three roles from the brief (attendee, doorman, venue). The only difference is which address you look up; I added a short explanation on that page.
 
-## 3. Design description
+Design choices:
 
-### 3.1 Architecture
+- ERC-20 tickets because the brief requires it and `balanceOf` is straightforward for door checks.
+- MetaMask for the paying buyer; separate generated wallets for deployer and vendor because I only had one funded MetaMask account.
+- The UI says “Transfer to vendor” instead of “return” so it is obvious ETH is not sent back.
+- A cap of 100 tickets to represent limited event capacity.
+- A read-only RPC on the balance page so the doorman does not need to install or connect a wallet.
 
-```text
-┌─────────────┐     JSON-RPC / MetaMask     ┌──────────────────┐
-│  Browser    │ ──────────────────────────► │  Sepolia         │
-│  (HTML/JS)  │                             │  TicketToken     │
-└─────────────┘                             │  contract        │
-       │                                    └────────┬─────────┘
-       │  deployed.inc.js (address)                 │
-       └────────────────────────────────────────────┘
-```
+Limitations: viewing a balance does not invalidate a ticket — the attendee must transfer the token. There is no frontend for the owner to withdraw ETH. I redeployed once during development, so only the contract address in section 5 should be used for marking this report.
 
-1. **Deployer** runs Hardhat deploy → contract address written to `deployed.inc.js`.
-2. **Purchaser** connects MetaMask on Sepolia → `buyTickets` → ETH to contract, tokens to purchaser.
-3. **Doorman / venue** use **Balances** with purchaser’s address (no wallet required for read-only check).
-4. **Purchaser** optionally **transfers** 1 ETIX to **vendor** address (hand-in / return-of-token, not refund).
+## 4. Development and code review
 
-### 3.2 Actor roles (assignment mapping)
+Work was merged through GitHub pull requests: https://github.com/EoinOKelly/Blockchain/pulls?q=is%3Apr+is%3Aclosed
 
-| Actor | How the DApp supports them |
-|-------|----------------------------|
-| **Attendee** | Buy Ticket + Balances on own address to confirm tokens |
-| **Doorman** | Balances: paste attendee address; ETIX ≥ 1 ⇒ holder |
-| **Venue / vendor** | Balances on multiple addresses; vendor address accumulates transferred ETIX |
+| PR | Summary |
+|----|---------|
+| [#1](https://github.com/EoinOKelly/Blockchain/pull/1) | Initial UI, sidebar navigation, wallet page, UI tests, GitHub Actions, uv/Commitizen setup |
+| [#2](https://github.com/EoinOKelly/Blockchain/pull/2) | Sepolia balance lookup and prompt log file |
+| [#3](https://github.com/EoinOKelly/Blockchain/pull/3) | TicketToken contract, deploy script, buy-ticket page |
+| [#4](https://github.com/EoinOKelly/Blockchain/pull/4) | Repository layout (Hardhat at root), expanded tests |
+| [#5](https://github.com/EoinOKelly/Blockchain/pull/5) | 100-ticket cap, transfer-to-vendor page, final submission work |
+| [#6](https://github.com/EoinOKelly/Blockchain/pull/6) |  harden TicketToken, full test coverage, and submission docs |
 
-One balance page serves all three roles by **whose address is queried**, with role explained in the UI copy and this report.
+I used a branch per feature, opened a PR, waited for CI, then merged. That gave a clear history for the module’s code-review and traceability requirements.
 
-### 3.3 Design decisions (managerial)
+## 5. Sepolia transaction evidence
 
-| Decision | Rationale |
-|----------|-----------|
-| ERC-20 for tickets | Matches brief; familiar standard; easy `balanceOf` checks |
-| Payable `buyTickets` with exact ETH | Simple Sepolia-native payment without oracle/DEX |
-| Vendor as transfer destination only | Meets “transfer back to vendor”; vendor need not hold ETH |
-| Mint cap 100 | Models finite event capacity; enforced in `buyTickets` |
-| Renamed “Return” → **Transfer to Vendor** | Avoids confusion with ETH refund |
-| Local wallet page + MetaMask for txs | Brief requires create/download wallet; MetaMask practical for Sepolia |
-| Read-only public RPC for balance page | Works without connecting wallet (doorman use case) |
+All links below relate to the same deployment.
 
-### 3.4 Known limitations (honest scope)
-
-- **No on-door “scan and burn”**: checking balance does not invalidate a ticket; attendee must transfer token to vendor to move it.
-- **Mint cap does not refill** when tokens are transferred to vendor (`totalSupply` unchanged).
-- **No `withdrawEth` UI** — owner must call via Hardhat/console.
-- **Two deployments** exist on Sepolia (see §4); the **final** contract includes the 100-ticket cap.
-
----
-
-## 4. Sepolia transaction evidence
-
-### 4.1 Wallet and contract addresses
+**Contract:** https://sepolia.etherscan.io/address/0xd67051f294e8ACEA08dcbDe513659f073cf06668
 
 | Role | Address |
 |------|---------|
-| **Contract creator / deployer** | [`0xBe3421B1E93A1885D1Aa4bf355c8cEeCC4544695`](https://sepolia.etherscan.io/address/0xBe3421B1E93A1885D1Aa4bf355c8cEeCC4544695) |
-| **Ticket purchaser** (MetaMask) | [`0x9a4cEa190106435dF9059Ee063F43A1EF9fEfcCA`](https://sepolia.etherscan.io/address/0x9a4cEa190106435dF9059Ee063F43A1EF9fEfcCA) |
-| **Vendor / doorman** | [`0x906b4a0773828D6528329ED486ae59F9e08cd5bf`](https://sepolia.etherscan.io/address/0x906b4a0773828D6528329ED486ae59F9e08cd5bf) |
-| **Final TicketToken contract** (100-cap version) | [`0xC624895c31FE16b552ac7966C73039276B95a888`](https://sepolia.etherscan.io/address/0xC624895c31FE16b552ac7966C73039276B95a888) |
-| Earlier TicketToken (no cap) | [`0xA8A28d5A1b7A279d67f728bD7a09704c3831f8da`](https://sepolia.etherscan.io/address/0xA8A28d5A1b7A279d67f728bD7a09704c3831f8da) |
+| Deployer | 0x0c6C1ecBbE984F0fD853750049cb8E65423e1454 |
+| Ticket purchaser | 0x9a4cEa190106435dF9059Ee063F43A1EF9fEfcCA |
+| Vendor / doorman | 0x906b4a0773828D6528329ED486ae59F9e08cd5bf |
 
----
+### Deployment
 
-### 4.2 Which of your links is which?
+https://sepolia.etherscan.io/tx/0xb52d3916e4a6c0aca949f4e396b3c808ec5ca6c71a2dd9db59bd0054add0c4d0
 
-You asked about these URLs — here is what each one is:
+Deployer `0x0c6C1…` created contract `0xd67051…`. Transaction succeeded. Constructor arguments set the vendor to `0x906b…` and the ticket price to 0.01 ETH.
 
-| Your link | What it actually is | Use for brief? |
-|-----------|---------------------|----------------|
-| [`0x184c129f…`](https://sepolia.etherscan.io/tx/0x184c129f1a37fdfaf513e255d407a65820e003caf890935cb95972407a3a7a76) | **Contract deployment** (creates `0xA8A28…`) | Valid as *a* deployment proof; **superseded** by final deploy below |
-| [`0x6da07adb…`](https://sepolia.etherscan.io/tx/0x6da07adb33cc26900a5cdb52e80f1bef7c29558291b0ee43129a3efd6e2a0808) | **ERC-20 `transfer`** — 1 ETIX from purchaser → vendor on **old** contract `0xA8A28…` | Valid for **“transfer ticket to vendor”**; **not** a buy and **not** a deployment |
-| Same `0x6da07adb…` pasted twice | Duplicate | Only list once |
+### Contract creator wallet — ETH funding
 
-**You still need a clear `buyTickets` link on the contract you cite in the report.** Recommended (final contract):
+https://sepolia.etherscan.io/tx/0x877150f24d03ff0e8d06604688f5ac8d122fb77ec279ee6e274710bc9f48903b
 
-| Requirement | Recommended transaction | Verification |
-|-------------|-------------------------|--------------|
-| **Deployment (final)** | [`0x9ce599be…`](https://sepolia.etherscan.io/tx/0x9ce599be45c6bd1c57bc84d08fd61f040c787fe58baffc4401beffdf8b779940) | Creates [`0xC624…`](https://sepolia.etherscan.io/address/0xC624895c31FE16b552ac7966C73039276B95a888) |
-| **Buy token (final)** | [`0x780adaa5…`](https://sepolia.etherscan.io/tx/0x780adaa549da65ddc93d71c12c89b2c0d6d71e1116e0f6fe01ae4866ced82647) | Method `buyTickets(1)`, **0.01 ETH**, mints 1 ETIX to purchaser |
+Plain ETH transfer of 0.064 ETH into the deployer wallet so it had enough Sepolia ETH for gas before deployment.
 
----
+### Buy a token
 
-### 4.3 Required evidence — primary table (use these in submission)
+https://sepolia.etherscan.io/tx/0x27a12c9bac702e95c53657561a544df020035127e2bd7a7eee067aef62dbca96
 
-#### A. Contract deployment (successful)
+Purchaser `0x9a4cEa…` called `buyTickets(1)` on the contract, sent 0.01 ETH, and received 1 ETIX. The `TicketPurchased` event appears in the transaction logs.
 
-| Item | Link | Commentary |
-|------|------|------------|
-| **Final deployment** | [0x9ce599be45c6bd1c57bc84d08fd61f040c787fe58baffc4401beffdf8b779940](https://sepolia.etherscan.io/tx/0x9ce599be45c6bd1c57bc84d08fd61f040c787fe58baffc4401beffdf8b779940) | From deployer `0xBe3421…`; contract created at `0xC624…`. Status **Success**. Constructor sets vendor `0x906b…`, price 0.01 ETH, `MAX_TICKETS = 100`. |
-| Earlier deployment (optional) | [0x184c129f1a37fdfaf513e255d407a65820e003caf890935cb95972407a3a7a76](https://sepolia.etherscan.io/tx/0x184c129f1a37fdfaf513e255d407a65820e003caf890935cb95972407a3a7a76) | First deploy to `0xA8A28…` before cap/rename iteration. |
+### Transfer ticket to vendor
 
-#### B. Buy a token (successful `buyTickets`)
+https://sepolia.etherscan.io/tx/0xbbdd3d45aca0fbafaa458041023119c4535cab9f14c30a176f543132c8bd73c9
 
-| Item | Link | Commentary |
-|------|------|------------|
-| **Buy on final contract** | [0x780adaa549da65ddc93d71c12c89b2c0d6d71e1116e0f6fe01ae4866ced82647](https://sepolia.etherscan.io/tx/0x780adaa549da65ddc93d71c12c89b2c0d6d71e1116e0f6fe01ae4866ced82647) | Purchaser `0x9a4cEa…` calls `buyTickets(1)` on `0xC624…`; **0.01 ETH** to contract; **1 ETIX** minted. Event `TicketPurchased` in logs. |
+Purchaser called `transferTicketsToVendor(1)`. One ETIX moved from the buyer to the vendor address `0x906b…`. No ETH was transferred.
 
-#### C. Transfer ticket to vendor (successful)
+### Ticket purchaser wallet — ETH funding
 
-| Item | Link | Commentary |
-|------|------|------------|
-| Transfer (earlier contract) | [0x6da07adb33cc26900a5cdb52e80f1bef7c29558291b0ee43129a3efd6e2a0808](https://sepolia.etherscan.io/tx/0x6da07adb33cc26900a5cdb52e80f1bef7c29558291b0ee43129a3efd6e2a0808) | `transfer(vendor, 1e18)` on `0xA8A28…`; purchaser → vendor; **0 ETH**; proves return-of-token flow. |
-| Transfer on final contract | *Optional* — run **Transfer to Vendor** once against `0xC624…` and add link here | Strengthens alignment with final deployed code. |
+The buyer wallet already held Sepolia ETH before the purchase (faucet and earlier transfers). Example funding transactions on that address:
 
-#### D. Wallet top-ups (Sepolia ETH funding)
+- https://sepolia.etherscan.io/tx/0x8097c1ecf19d619169514740de30b4bfe885b7f91aca2493e517d26f184372e0
+- https://sepolia.etherscan.io/tx/0x7d32053b8e258785d3c6d3664bb7ef1bb1cb8d0cf34ea5f38544adc06a9da9db
 
-| Role | Link | Commentary |
-|------|------|------------|
-| **Contract creator** | [0xcab1b0ea96c940e65b13f8fe85686591f4cdf3c7312944547ecb8197cb03dda4](https://sepolia.etherscan.io/tx/0xcab1b0ea96c940e65b13f8fe85686591f4cdf3c7312944547ecb8197cb03dda4) | Incoming **0.05 ETH** to deployer `0xBe3421…` (faucet/funding). Used for deploy gas. |
-| **Ticket purchaser** | [0x8097c1ecf19d619169514740de30b4bfe885b7f91aca2493e517d26f184372e0](https://sepolia.etherscan.io/tx/0x8097c1ecf19d619169514740de30b4bfe885b7f91aca2493e517d26f184372e0) | Incoming ETH to purchaser `0x9a4cEa…` (Etherscan “Funded By”). |
-| **Ticket purchaser** (additional) | [0x7d32053b8e258785d3c6d3664bb7ef1bb1cb8d0cf34ea5f38544adc06a9da9db](https://sepolia.etherscan.io/tx/0x7d32053b8e258785d3c6d3664bb7ef1bb1cb8d0cf34ea5f38544adc06a9da9db) | Further incoming transfer (**0.1015799 ETH**) for purchases and gas. |
-| **Vendor / doorman** | See note below | Vendor address has **no outgoing txs** and **no ETH “Funded By”** on Etherscan; it **received 1 ETIX** via [transfer 0x6da07adb…](https://sepolia.etherscan.io/tx/0x6da07adb33cc26900a5cdb52e80f1bef7c29558291b0ee43129a3efd6e2a0808). For strict “ETH top-up” wording, send a small Sepolia ETH amount from deployer or purchaser to `0x906b…` and add that tx link. |
+The vendor wallet received ETIX from the transfer transaction above; it did not require a separate ETH top-up for this demo.
 
----
+## 6. Running the project locally
 
-## 5. Rubric alignment (Managerial grading — 40% module)
+From the repository root:
 
-This section maps the project to the **Students as Managers of AI** rubric. Peer review (10%) is submitted separately.
-
-| Criterion | Weight | Evidence in this project | Target band |
-|-----------|--------|--------------------------|-------------|
-| **1. Process oversight & traceability** | 25% | [`PROMPTS_SUBMISSION.md`](PROMPTS_SUBMISSION.md); semantic commits (`uv run cz commit`); GitHub Actions; iterative deploy/debug (Sepolia, TLS) | B2–A1 |
-| **2.1 Wallet creation** | 5% | Create-wallet page: generate, display, download JSON; prompts on `ethers` and key safety | B2–A1 |
-| **2.2 Balance check / three actors** | 10% | Single balances page, role described in UI; read-only RPC; purchaser/doorman/venue scenarios documented §3.2 | B2 |
-| **2.3 Ticket purchase flow** | 10% | MetaMask + Sepolia guard; `buyTickets`; explorer links; cap error message; tickets-remaining display | B2–A1 |
-| **2.4 Token transfer to vendor** | 5% | Transfer page + Etherscan `transfer` proof; balances verify vendor receipt | B2 |
-| **3.1 Smart contract** | 15% | OpenZeppelin ERC-20 + Ownable; payable mint; cap; tests; human-driven rename/cap | B2 |
-| **3.2 Submission structure** | 5% | Root Hardhat + `frontend/`; deploy artefact; this report | B2–A1 |
-| **3.3 Report communication** | 10% | This document: design rationale + verified txs | B2 |
-| **4.1 Documentation** | 5% | README, report, prompt log | B2 |
-| **4.2 Code efficiency** | 2.5% | Optimizer enabled; mint cap check; focused JS | B2 |
-| **4.3 Error handling** | 5% | Sepolia mismatch, missing contract, cap exceeded, wallet not detected | B2 |
-| **4.4 Testing** | 5% | 15 Hardhat tests; Vitest UI tests; CI | B2–A1 |
-
-**Managerial reflection:** AI accelerated scaffolding and debugging; **human decisions** included wallet role split (MetaMask buyer vs generated deployer/vendor), rejecting “return” as ETH refund language, redeploying after `MAX_TICKETS`, and validating txs on Etherscan against the **final** contract address.
-
----
-
-## 6. How to run (reproducibility)
-
-```powershell
-# Contracts
-cd Blockchain
+```
 npm ci
 npx hardhat test
-npm run deploy:sepolia   # requires .env — see .env.example
-
-# Frontend
-cd frontend/src
-npx --yes serve . -p 5173
-# Open http://localhost:5173/pages/buy-ticket.html (MetaMask on Sepolia)
+cp .env.example .env
+npm run deploy:sepolia
 ```
 
----
+Serve the frontend from `frontend/src` (for example `npx serve . -p 5173`) and open `http://localhost:5173/pages/buy-ticket.html`. MetaMask must be on Sepolia. The site needs to be served over HTTP, not opened as a local file, or the wallet extension will not inject.
 
-## 7. Submission checklist
+## 7. Use of AI
 
-- [x] DApp features implemented  
-- [x] Final contract deployed (`0xC624…`)  
-- [x] Deployment + buy Etherscan links (final contract)  
-- [x] Transfer-to-vendor link (at least on `0xA8A28…`; optional repeat on `0xC624…`)  
-- [x] Creator + purchaser funding links  
-- [ ] Vendor ETH top-up link (optional small transfer for strict brief wording)  
-- [ ] Peer review reflection (~200 words)  
-- [ ] Zip for Brightspace (exclude `.env`, `node_modules`)  
+I used Cursor to generate initial file structure, some tests, and explanations when I was stuck. I reviewed and changed the output where needed (naming, ticket cap, contract functions, Sepolia config). This report and the Etherscan links reflect what I actually ran on testnet.
 
----
+## References
 
-## 8. References
-
-- Sepolia Etherscan: [https://sepolia.etherscan.io](https://sepolia.etherscan.io)
-- OpenZeppelin Contracts (ERC-20, Ownable)
-- `ethers.js` v6 documentation
-- Module brief: Web3 ticketing DApp on Sepolia
-- AI prompt log: [`PROMPTS_SUBMISSION.md`](PROMPTS_SUBMISSION.md)
-
----
-
-*Report generated for academic submission. Replace placeholder name/student ID if required by your school.*
+Sepolia Etherscan, OpenZeppelin Contracts, ethers.js v6 documentation, module assignment brief.

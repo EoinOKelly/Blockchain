@@ -16,6 +16,8 @@ function setupWalletDom() {
 describe("wallet ui", () => {
   beforeEach(() => {
     vi.resetModules();
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
     setupWalletDom();
 
     globalThis.ethers = {

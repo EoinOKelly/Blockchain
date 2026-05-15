@@ -3,6 +3,9 @@ frontend/node_modules/
 node_modules/
 artifacts/
 cache/
+coverage/
+coverage.json
+frontend/coverage/
 npm-debug.log*
 
 # Python

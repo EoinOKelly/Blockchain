@@ -1,16 +1,18 @@
 {
   "name": "blockchain-ticketing-contracts",
-  "version": "1.0.0",
+  "version": "0.2.0",
   "private": true,
   "scripts": {
     "compile": "hardhat compile",
     "test": "hardhat test",
-    "deploy:sepolia": "hardhat run scripts/deploy.js --network sepolia"
+    "test:coverage": "hardhat coverage",
+    "deploy:sepolia": "node -r ./scripts/rpc-tls.cjs ./node_modules/hardhat/internal/cli/bootstrap.js run scripts/deploy.js --network sepolia"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
     "@openzeppelin/contracts": "^5.0.2",
     "dotenv": "^16.4.5",
-    "hardhat": "^2.22.17"
+    "hardhat": "^2.22.17",
+    "solidity-coverage": "^0.8.17"
   }
 }

@@ -1,11 +1,11 @@
 {
   "name": "frontend",
-  "version": "1.0.0",
+  "version": "0.2.0",
   "type": "module",
   "scripts": {
-    "test": "vitest run --environment jsdom",
-    "test:ui": "vitest run --environment jsdom",
-    "test:ui:watch": "vitest --environment jsdom",
+    "test": "vitest run",
+    "test:ui": "vitest run",
+    "test:ui:watch": "vitest",
     "format": "prettier --write \"src/**/*.{js,html,css}\""
   },
   "keywords": [],
