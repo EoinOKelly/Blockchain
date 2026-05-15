@@ -19,6 +19,12 @@ This repo uses `uv` for Python-based tooling (for example `commitizen`).
 
 ### Install uv
 
+macOS / Linux:
+
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
 Windows (PowerShell):
 
 ```powershell
@@ -26,6 +32,14 @@ powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | ie
 ```
 
 ### Install dev tooling dependencies
+
+macOS / Linux:
+
+```bash
+uv sync --group dev
+```
+
+Windows:
 
 ```powershell
 uv sync --group dev
@@ -53,14 +67,29 @@ uv add <package-name>
 uv add --group dev <package-name>
 ```
 
+## Contract tests
+
+From repo root:
+
+```bash
+npm ci
+npx hardhat test
+```
+
 ## Frontend tests
 
 From `frontend/`:
 
-```powershell
+```bash
 npm ci
 npm run test:ui
 ```
+
+(Windows: same commands in PowerShell.)
+
+## npm audit
+
+After `npm ci`, review vulnerabilities with `npm audit`. Fix safe issues with `npm audit fix` before any mainnet use (testnet-only for this assignment).
 
 ## README structure guidance
 

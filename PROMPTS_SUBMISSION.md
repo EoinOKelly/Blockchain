@@ -1,389 +1,265 @@
-# AI Prompt Log — Web3 Ticketing DApp (Managerial Submission)
+# My Cursor AI Prompts — Blockchain Project (Eoin O'Kelly, 24417491)
 
-**Student:** Eoin O'Kelly  
-**Module:** Blockchain (Year 2) — *Students as Managers of AI* (30% of module grade)  
-**Project:** Sepolia testnet ticketing DApp (Hardhat + static HTML/JS frontend)
+Prompt 1
 
----
+init this folder in my repo: https://github.com/EoinOKelly/Blockchain.git commit message is just init repo
 
-## How to read this document
+Prompt 2
 
-This is a **single consolidated log** of how I directed Cursor AI while building the project. Prompts are grouped by the **Managerial Grading Rubric**, not by chat session, so markers can trace oversight against each criterion.
+dont say made with cursor
 
-| Legend | Meaning |
-| --- | --- |
-| **Prompt** | Wording used (or lightly edited for clarity). Where I reworded for submission, the original intent is preserved. |
-| **Outcome / oversight** | What I expected the AI to deliver and how I validated it. |
-| *(Added)* | Prompt synthesized from a clear managerial decision during the project (not a single verbatim chat line). |
+Prompt 3
 
-**Excluded from this log (per submission guidance):** asking whether the project was “done”; prompts whose only purpose was generating this log or `REPORT.md`; empty screenshot-only messages; duplicate full brief pastes; raw terminal dumps (e.g. `uv` PATH troubleshooting).
+this is the project I am working on, to begin can you please build out the folder and file structure of the repo for both backend and frontend, no code implemented yet
 
-**Companion files:** technical report → [`REPORT.md`](REPORT.md); runnable code → repository root.
+Description
+Create a Web3 Distributed Application (DApp) that implements simple ticketing system.  You should use the Ethereum Sepolia Testnet as you blockchain for Solidity smart contract deployments,  and HTML, CSS and Javascript for your front end.  You are free to use any development environments that you are comfortable with, however examples in this module will be demonstrated using Visual Studio Code and the Online Remix Solidity compiler and deployment tool.
 
----
+ 
 
-## Rubric index
+Requirements
+Front End:
+Page allowing a user to create a wallet.
+Should provide the ability to download the created wallet.
+Should display wallet details once created.
+Page allowing a user to check their current crypto and ticket token balance.
+To be used by the following actors:
+Person attending the event so that they can confirm their purchase.
+Doorman, so they can confirm a wallet is the holder of the ticket.
+Venue, so they can check on distribution of tickets
+Page allowing a user to buy a ticket (token).
+Page allowing a user to transfer a ticket back to the vendor.
+Blockchain Backend:
+Smart contract implementing the ERC-20 standard and extended to allow tickets to be purchased using the native cryptocurrency of Sepolia (SETH)
+Project should be submitted as a zipped solution via Brightspace
+The project should be accompanied by a report detailing the following:
+Code overview.
+Design description.
+Links to transactions on Sepolia’s blockchain explorer showing:
+A successful deployment of your contract
+A successful execution of your contract to buy a token
+A successful topping up of separate wallets for:
+Contract creator
+Ticket Purchaser
+Vendor / Doorman
+Peer Review:  3 Weeks Prior to submission you will engage in a peer review session with a colleague which you will document and submit
 
-| Rubric criterion | Weight | Section below |
-| --- | ---: | --- |
-| 1. Process oversight & traceability | 25% | §1 |
-| 2.1 Wallet creation oversight | 5% | §2.1 |
-| 2.2 Balance check logic (three actors) | 10% | §2.2 |
-| 2.3 Ticket purchase flow | 10% | §2.3 |
-| 2.4 Token transfer to vendor | 5% | §2.4 |
-| 3.1 Smart contract architecture | 15% | §3.1 |
-| 3.2 Project structure & submission | 5% | §3.2 |
-| 4.1 Documentation | 5% | §4.1 |
-| 4.2 Code efficiency | 2.5% | §4.2 |
-| 4.3 Proactive error handling | 5% | §4.3 |
-| 4.4 Comprehensive testing | 5% | §4.4 |
+Prompt 4
 
-*Criterion 3.3 (written report) is assessed via `REPORT.md`, not this prompt log.*
+I will likely not use all of these files but I prefer to start with a file structure and delete if needed so I dont forget to implement specific things. Can you add a basic html js css page that lets a user create a wallet, download it as a file, and show the wallet details on screen once its created
 
----
+Prompt 5
 
-## §1 — AI-enhanced code review process (25%)
+what is happening in this line <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.2/dist/ethers.umd.min.js"></script> ? also I noticed "use strict" at the top of wallet.js, what does that do? and does ethers.Wallet.createRandom() actually create a secure random wallet?
 
-### 1.1 Repository and commit discipline
+Prompt 6
 
-**Prompt 1**  
-Initialize this folder as a git repo linked to `https://github.com/EoinOKelly/Blockchain.git` with first commit message `init repo`. Do not add “made with Cursor” or similar to commit metadata.
+why is ethers loaded in the html file instead of importing it in the js file?
 
-**Outcome / oversight:** Clean git history owned by the student; verified commit message on GitHub.
+Prompt 7
 
----
+for the create wallet page - is it ok to show the private key on screen for a college testnet project or should we add a warning that this is only for sepolia practice and not how youd do it in production?
 
-**Prompt 2**  
-After adding UI unit tests, review them with me, then suggest a **branch name** and **commit message** suitable for **Commitizen** semantic versioning before I open a PR.
+Prompt 8
 
-**Outcome / oversight:** Tests reviewed before merge; conventional commit format for traceable PRs.
+okay can you build out the boilerplate for every html page and create one central navigation page, with a sidebar on the left for quick nav. add a hamburger icon in a different colour near the top right of the sidebar area to open and close it
 
----
+Prompt 9
 
-**Prompt 3**  
-Set up **Commitizen** via **`uv` dev dependencies** (not a global npm install). Document in the README: `uv sync --group dev`, `uv run cz commit`, and when to use runtime vs dev dependency groups in a polyglot (Python + JS) repo.
+centralise the hamburger icon in the button and have it sitting on the outside edge of the sidebar not inside it
 
-**Outcome / oversight:** Dev tooling isolated from contract/frontend runtime; `uv.lock` committed for reproducibility.
+Prompt 10
 
----
+add a bit more margin on the right of the hamburger so theres more gap before the main content, and line it up with the home button
 
-**Prompt 4**  
-Add a `.gitignore` for `node_modules`, build artefacts, and `.env`. Confirm whether `uv.lock` should be committed (yes — reproducible installs).
+Prompt 11
 
-**Outcome / oversight:** Secrets and heavy folders excluded from Brightspace zip and GitHub.
+I fixed the layout myself with left margin on main content. next can you add some UI unit tests, I want to run them in github actions on my PR - im not too used to actions so explain how to set that up
 
----
+Prompt 12
 
-**Prompt 5**  
-Configure **GitHub Actions** so frontend **Vitest** UI tests run on every pull request. Briefly explain what each workflow file does so I can maintain CI myself.
+read over the tests, they seem like a good starting point - give me a branch name and commit message that works with commitizen for semantic versioning
 
-**Outcome / oversight:** `.github/workflows/frontend-ui-tests.yml`; PR pipeline runs before merge.
+Prompt 13
 
----
+I dont want commitizen installed globally, can we use uv dev dependencies for commitizen instead and document in the README how to run uv sync and cz commit. one readme for the whole repo is fine right?
 
-**Prompt 6**  
-Review all **unstaged/uncommitted** changes, summarize what changed since the last commit, and give me a **valid branch name** plus the exact **`uv run cz commit`** steps (including scope) for a PR that covers the Sepolia balances work and related updates.
+Prompt 14
 
-**Outcome / oversight:** Deliberate commit scope; PR traceability from branch → review → merge.
+add a gitignore for node_modules and .env, and tell me if uv.lock should be committed or ignored
 
----
+Prompt 15
 
-**Prompt 7**  
-Explain how this project is **deployed to Sepolia** (`scripts/deploy.js`, `deployments/`, `deployed.inc.js`). Before deleting folders, confirm which are required for reproducible deploy and frontend contract address wiring.
+how do i configure github actions in this repo?
 
-**Outcome / oversight:** Kept `deployments/` and deploy scripts; removed only out-of-scope `docs/` after confirmation.
+Prompt 16
 
----
+have a look at my brief again - im not sure if I actually need a separate backend folder or if contracts at the root is enough
 
-## §2 — Front-end validation & architecture (30%)
+Prompt 17
 
-### §2.1 Wallet creation oversight (5%)
+Set up the balances page so I can paste any address and see sepolia ETH balance and the ticket token balance. add a short note on the page for how an attendee, doorman, and venue would each use this same page
 
-**Prompt 8**  
-Scaffold the full assignment structure (Hardhat contracts, deploy scripts, tests, frontend pages) from the module brief — placeholders only first, then implement features incrementally.
+Prompt 18
 
-**Outcome / oversight:** Structure matched brief checklist before coding.
+Can you implement the js for the balances / ticket check side of things - the brief says one page for checking crypto and ticket balance for the person attending, the doorman checking a wallet has a ticket, and the venue checking distribution
 
----
+Prompt 19
 
-**Prompt 9**  
-Implement the **Create Wallet** page: generate a wallet with `ethers.Wallet.createRandom()`, **display** address/private key/mnemonic, and allow **download** as JSON. Match assignment requirements exactly.
+how does all of this actually connect to sepolia - whats the workflow from creating a wallet here to having something on testnet that can buy tickets and check balances?
 
-**Outcome / oversight:** All three wallet features present; manual test of download + re-import path.
+Prompt 20
 
----
+when I create a wallet here how do I actually use it on sepolia testnet - do I import it into metamask and get faucet eth?
 
-**Prompt 10**  
-Explain `ethers` CDN loading in HTML vs JS, `"use strict"`, and whether `createRandom()` is cryptographically secure. I need to understand key handling before accepting the AI’s approach.
+Prompt 21
 
-**Outcome / oversight:** Validated architecture choice (static site, no bundler); informed trade-off of showing secrets on screen for a lab DApp.
+so a wallet address is valid even before it has eth on chain right? how does metamask and the rpc stuff fit together, like what api are we calling from the frontend?
 
----
+Prompt 22
 
-**Prompt 11** *(Added)*  
-Add a visible warning on the wallet page: generated keys are for **testnet practice only**; never reuse this pattern for mainnet; prefer MetaMask for funded Sepolia transactions.
+help me plan the next steps - contract design for buying tickets with sepolia eth, frontend wiring, and any cleanup. how should buy and transfer back to vendor work in code?
 
-**Outcome / oversight:** Security awareness documented in UI, not only in chat.
+Prompt 23
 
----
+i like this plan, follow the brief and implement it. use openzeppelin for erc20, delete any frontend/backend folders we dont need anymore
 
-**Prompt 12**  
-I have one MetaMask account with Sepolia ETH (buyer). I need **deployer** and **vendor/doorman** roles. Walk me through using this DApp’s wallet generator vs MetaMask import, and which address should deploy vs purchase vs receive returned tickets.
+Prompt 24
 
-**Outcome / oversight:** Three-role test plan: deployer `0xBe34…`, purchaser `0x9a4c…`, vendor `0x906b…` (see `REPORT.md`).
+implement the plan
 
----
+Prompt 25
 
-### §2.2 Balance check logic — three actors (10%)
+for TicketToken use openzeppelin ERC20 and Ownable, payable buyTickets minting tokens when the user sends the right amount of sepolia eth. enable the solidity optimizer in hardhat to keep deploy and mint gas reasonable
 
-**Prompt 13**  
-Build the **Balances** page: user enters **any** address; show **Sepolia ETH** and **ticket token (ETIX)** balance via read-only RPC (no wallet connect required).
+Prompt 26
 
-**Outcome / oversight:** Doorman can check attendee at door without owning their keys.
+review the contract for obvious security stuff - zero address checks, exact eth payment, dont mint over the cap, and safe way for owner to withdraw eth from the contract
 
----
+Prompt 27
 
-**Prompt 14**  
-On the balances page, document in UI copy how the **same page** serves: (1) **attendee** — confirm purchase on own address; (2) **doorman** — paste attendee address, ETIX ≥ 1 means valid holder; (3) **venue** — check distribution across multiple addresses including vendor.
+before I test on sepolia add proper error messages on buy ticket for: no metamask, wrong network, contract not deployed, not enough eth, user rejects tx, and contract reverts like ticket cap exceeded. dont show raw rpc errors to the user
 
-**Outcome / oversight:** One component, three actor workflows — distinction by *which address is queried*, not separate broken pages.
+Prompt 28
 
----
+implement the buy ticket page properly - connect metamask, check sepolia network, show price and balances, call buyTickets(1), show tickets remaining and link to etherscan after success
 
-**Prompt 15**  
-Walk me through the end-to-end workflow: create wallet → fund on Sepolia → connect MetaMask → buy ticket → verify on balances page. Clarify when an address “exists” on-chain vs simply being valid offline.
+Prompt 29
 
-**Outcome / oversight:** Correct mental model of JSON-RPC, faucets, and explorer verification.
+I am getting "No wallet extension detected. Install MetaMask or similar." when I try connect on the buy ticket page - what should I check?
 
----
+Prompt 30
 
-### §2.3 Ticket purchase transaction flow (10%)
+what does prettier do, explain how the smart contract buy flow works, and why am I getting "Please switch your wallet to the Sepolia network" when im on metamask with eth showing
 
-**Prompt 16**  
-Plan and implement the full DApp per the brief: ERC-20 + **payable `buyTickets`** using native Sepolia ETH, wire all frontend pages, deployment artefact for contract address, and remove unused scaffold files.
+Prompt 31
 
-**Outcome / oversight:** Integrated stack; `deployed.inc.js` auto-updated on deploy.
+I cant find a separate sepolia address in metamask - only one eth address but the balance looks right, is that normal?
 
----
+Prompt 32
 
-**Prompt 17**  
-Implement **Buy Ticket** JavaScript: MetaMask connect, **enforce Sepolia (chain 11155111)**, show ticket price, ETH balance, ETIX balance, tickets remaining, and call `buyTickets(1)` with exact `msg.value`.
+build the transfer ticket back to vendor page with erc20 transfer to the vendor address from config. make it very clear they are only sending the token back and not getting eth refunded
 
-**Outcome / oversight:** Purchase flow tested on Sepolia; Etherscan tx `0x780adaa5…` on final contract.
+Prompt 33
 
----
+after someone transfers to vendor I want to be able to check on balances page that purchaser ETIX went down and vendor ETIX went up by one ticket
 
-**Prompt 18** *(Added)*  
-For the buy flow, implement **user-facing errors** (not raw RPC text) for: wallet not detected, wrong network, missing contract config, insufficient ETH, transaction rejected, and **`TicketToken: ticket cap exceeded`**. Disable buttons while a tx is pending.
+Prompt 34
 
-**Outcome / oversight:** `setStatus()` / `isError` pattern in `ticketing.js`; cap message after `MAX_TICKETS = 100` added.
+so at the event entrance how does the vendor confirm a ticket and stop reuse - should they have all 100 tokens minted to them at the start?
 
----
+Prompt 35
 
-**Prompt 19**  
-Debug: “No wallet extension detected” when connecting — check serving over `http://localhost` vs `file://`, MetaMask install, and `window.ethereum` detection order.
+change the return wording to transfer to vendor because return sounds like you get eth back. also add a max of 100 tickets in circulation on the contract if thats possible
 
-**Outcome / oversight:** Frontend served via `npx serve`; MetaMask connection working.
+Prompt 36
 
----
+add hardhat tests for buying with correct eth, wrong eth amount, exceeding the 100 ticket cap, zero vendor on deploy, and erc20 transfer to vendor
 
-**Prompt 20**  
-MetaMask shows one ETH address on all networks — I can’t find a “Sepolia-only address”. Explain why the DApp still says “switch to Sepolia” and how to enable Sepolia test network in MetaMask.
+Prompt 37
 
-**Outcome / oversight:** Resolved network mismatch; purchases succeed on chain ID 11155111.
+should the vendor address have 100 ticket tokens already if its "giving them out"? im confused where minting happens
 
----
+Prompt 38
 
-### §2.4 Token transfer validation (5%)
+when someone buys a ticket where does the sepolia eth actually go - vendor wallet or the contract?
 
-**Prompt 21**  
-At event entrance, how should the vendor **confirm** a ticket and **invalidate** reuse? Should the vendor hold a pre-minted supply? Propose a flow that fits our ERC-20 model.
+Prompt 39
 
-**Outcome / oversight:** Chose transfer-to-vendor (token moves to vendor address); balance check alone does not burn ticket.
+so you can redeploy a new contract on sepolia if we change the cap? what happens to the old address in the frontend
 
----
+Prompt 40
 
-**Prompt 22**  
-Rename **“Return ticket”** to **“Transfer to Vendor”** — “return” sounds like an ETH refund. Implement ERC-20 `transfer(vendor, 1 ticket)` and show clear copy that **no ETH is refunded**.
+guide me step by step to finish the project on sepolia - deploy contract, update frontend config, fund wallets, buy a ticket, transfer to vendor, and what txs I need for the report
 
-**Outcome / oversight:** Page and nav updated; Etherscan transfer `0x6da07adb…` documented in report.
+Prompt 41
 
----
+I have one metamask account with sepolia eth already - I think that should be the buyer. I still need addresses for deployer and vendor, can I use the create wallet page for those and how should I split the roles?
 
-**Prompt 23**  
-After transfer, verify on the balances page that **purchaser ETIX decreased** and **vendor ETIX increased** by exactly one ticket unit. Confirm contract ETH balance is unchanged (no refund).
+Prompt 42
 
-**Outcome / oversight:** Manual balance checks aligned with on-chain `Transfer` event.
+go through changes since last commit and give me a branch name plus cz commit steps for a new PR
 
----
+Prompt 43
 
-**Prompt 24**  
-Clarify: vendor address does **not** need 100 tokens pre-minted — tokens are minted to buyers on purchase and only reach vendor via transfer. Where does Sepolia ETH from `buyTickets` go?
+how do I cz commit this, also keep in mind that this commit also contains the view balance edition
 
-**Outcome / oversight:** Understood ETH held in contract until `withdrawEth()`; vendor receives ETIX only.
+Prompt 44
 
----
+give me a valid branch name for this content aswell please
 
-## §3 — Blockchain management (30%)
+Prompt 45
 
-### §3.1 Smart contract architectural guidance (15%)
+give me a branch name and commit message for all the contract and frontend work
 
-**Prompt 25**  
-Implement **`TicketToken`**: OpenZeppelin **ERC-20** + **Ownable**; **`buyTickets(uint256)`** payable in native ETH at fixed `ticketPriceWei`; mint `ticketCount × 10^decimals` to buyer; revert if `msg.value` ≠ price × count.
+Prompt 46
 
-**Outcome / oversight:** Meets ERC-20 + Sepolia native-ETH purchase extension (brief “SETH”).
+make sure semantic versioning with cz commit is set up right and bumping properly on commits
 
----
+Prompt 47
 
-**Prompt 26**  
-Add **`MAX_TICKETS = 100`** enforced on `totalSupply` after mint. Emit events for purchase, price update, and vendor update. Use **Solidity 0.8.20** with **optimizer enabled** in Hardhat for gas-efficient deployment.
+clean up unnecessary folders but keep contracts, scripts, tests, deployments, github workflows and the frontend. explain what deploy.js and verify.js do before removing anything
 
-**Outcome / oversight:** Cap tested in Hardhat; redeployed to `0xC624…` with 100-ticket limit.
+Prompt 48
 
----
+how is the app deployed to sepolia right now and how does deployed.inc.js get the contract address into the frontend?
 
-**Prompt 27** *(Added)*  
-Review the contract for common issues: zero-address checks on vendor, exact ETH payment (no over/under pay), no unbounded mint, and safe ETH withdrawal pattern for owner. Flag anything that would fail a basic security review.
+Prompt 49
 
-**Outcome / oversight:** `require` guards on vendor and payment; OpenZeppelin base contracts; no custom unchecked external calls beyond `withdrawEth`.
+add more tests anywhere we are missing coverage - contract edge cases and the main frontend flows
 
----
+Prompt 50
 
-**Prompt 28**  
-Guide me step-by-step to **deploy to Sepolia**: `.env` for RPC + private key, `npm run deploy:sepolia`, update frontend `deployed.inc.js`, fund buyer via faucet, run buy + transfer demos, and capture Etherscan links for the report.
+review unstaged changes, suggest a branch name and the full cz commit message for everything not committed yet
 
-**Outcome / oversight:** Deployment tx `0x9ce599be…`; documented addresses in `REPORT.md`.
+Prompt 51
 
----
+run through the managerial rubric for this module and add any missing tests or prompts-level gaps you see - especially test coverage and error handling
 
-**Prompt 29**  
-Can we **redeploy** a new contract on Sepolia after changing the cap and UI naming? Explain implications for old contract address vs new `deployed.inc.js`.
+Prompt 52
 
-**Outcome / oversight:** Redeployed; report distinguishes first deploy (`0xA8A28…`) vs final (`0xC624…`).
+document in the README how to install deps, run hardhat test, deploy to sepolia, and serve the frontend locally with the right env vars from .env.example
 
----
+Prompt 53
 
-### §3.2 Project submission trace & structure (5%)
+my peer reviewed my TicketToken contract and found some issues - withdrawEth uses .transfer() which can fail for contract wallets, setTicketPriceWei can be set to 0 so people mint for free, exact eth only means overpay reverts with no refund, vendor isnt enforced on chain for returns, and 18 decimals lets you transfer half a ticket. can you fix these in the contract and update tests?
 
-**Prompt 30**  
-Apply a consistent frontend shell: home hub, left sidebar navigation, hamburger toggle **outside** the sidebar edge, aligned with Home link — same layout on every page.
+Prompt 54
 
-**Outcome / oversight:** Cohesive DApp UX across five pages.
+peer also said my .env.example rpc url was broken (dns fail on sepolia deploy) and readme was windows only - fix .env.example with a working public sepolia rpc and add mac/linux steps next to powershell
 
----
+Prompt 55
 
-**Prompt 31**  
-Remove unnecessary folders and files, but **keep** contracts, Hardhat config, `scripts/` (deploy/verify), tests, CI workflows, and frontend assets. Explain what each script in `scripts/` does before deleting anything.
+add natspec comments on withdrawEth setVendor and setTicketPriceWei not just buyTickets, and run npm audit fix on anything safe before submission
 
-**Outcome / oversight:** Lean repo suitable for Brightspace zip; deploy pipeline intact.
+Prompt 56
 
----
+for returning tickets use a transferTicketsToVendor function that always sends to the vendor address in the contract, then wire the frontend transfer page to call that instead of generic erc20 transfer so our tests match what the brief actually means
 
-**Prompt 32**  
-Clarify repo layout: Solidity/Hardhat at root is our “blockchain backend” even without a Node API server. Confirm `contracts/`, `test/`, `scripts/`, `frontend/` are the required submission structure.
+Prompt 57
 
-**Outcome / oversight:** Final structure matches module expectations.
+after peer review changes redeploy isnt automatic - remind me what I need to run again and that old sepolia contract address wont have the fixes until I deploy fresh
 
----
+Prompt 58
 
-## §4 — Managerial oversight & QA (15%)
-
-### §4.1 Human-authored documentation (5%)
-
-**Prompt 33**  
-Document in the **README**: how to install (`npm ci`, `uv sync`), run Hardhat tests, deploy to Sepolia, serve the frontend locally, and which env vars are required (`.env.example` only — never commit secrets).
-
-**Outcome / oversight:** Reproducible setup for markers and future me.
-
----
-
-**Prompt 34** *(Added)*  
-For major JS modules (`wallet.js`, `blockchain.js`, `ticketing.js`, `transfer-to-vendor.js`), keep comments minimal but ensure **README + report** explain how config (`config.js` + `deployed.inc.js`) ties frontend to chain `11155111`.
-
-**Outcome / oversight:** Integration story in `REPORT.md` §3.1, not scattered AI boilerplate in code.
-
----
-
-### §4.2 Prompting for code efficiency (2.5%)
-
-**Prompt 35** *(Added)*  
-Enable the Hardhat **Solidity optimizer** (200 runs) for `TicketToken` deployment. Prefer `constant`/`immutable` where possible and avoid redundant storage reads in `buyTickets`.
-
-**Outcome / oversight:** `hardhat.config.js` optimizer `enabled: true`; lean mint path in contract.
-
----
-
-### §4.3 Proactive error handling (5%)
-
-**Prompt 36**  
-When implementing Sepolia features, never surface raw `error.data` or stack traces to end users. Map failures to short actionable messages (network, config, user reject, revert reason).
-
-**Outcome / oversight:** Consistent `setStatus(message, isError)` across buy and transfer pages.
-
----
-
-**Prompt 37**  
-If `deployed.inc.js` is missing or contract address is zero, block purchases with a clear “deploy contract first” message instead of failing silently.
-
-**Outcome / oversight:** Config guard in runtime config helper.
-
----
-
-### §4.4 Comprehensive testing (5%)
-
-**Prompt 38**  
-Add **Vitest** UI tests for sidebar toggle and wallet page behaviour; I will run them in **GitHub Actions** on PRs. Review generated tests with me before I commit.
-
-**Outcome / oversight:** `frontend/tests/ui/`; CI green on PR.
-
----
-
-**Prompt 39**  
-Add **Hardhat tests** for: constructor values, zero vendor revert, successful `buyTickets`, wrong ETH amount revert, **cap exceeded** revert, `setVendor`, `setTicketPriceWei`, and ERC-20 **transfer** to vendor.
-
-**Outcome / oversight:** 15 tests in `test/TicketToken.test.js`; `npx hardhat test` passing.
-
----
-
-**Prompt 40**  
-Add tests for **any features still without coverage** (contract edge cases + frontend flows). Then review against the managerial rubric and list gaps I should fix manually.
-
-**Outcome / oversight:** Expanded coverage; rubric gap list informed final manual testing on Sepolia.
-
----
-
-## Appendix A — Managerial decisions (human, not AI)
-
-| Decision | Rationale |
-| --- | --- |
-| MetaMask for funded **buyer**; generated wallets for **deployer/vendor** | One funded account; role separation for report txs |
-| **Transfer to Vendor** not ETH refund | Matches brief; avoids misleading “return” language |
-| **100 ticket cap** + redeploy | Finite event; new contract address in report |
-| Keep **`deployments/`** + **`deployed.inc.js`** | Frontend must track live Sepolia address |
-| **`REPORT.md` written separately** | Report graded under 3.3; this file is prompt evidence only |
-
----
-
-## Appendix B — Excluded prompts (why)
-
-| Excluded | Reason |
-| --- | --- |
-| “Is the project done?” / “get this project done” | Status checks, not managerial direction |
-| “Build REPORT.md / prompt log from rubric” | Submission artefacts, not build oversight |
-| Empty `<user_query>` with screenshots only | No instructive content |
-| Duplicate full brief paste (×3) | Consolidated into Prompt 8 / 16 |
-| `uv` install PATH error dump | Environment noise |
-| This chat’s “combine all prompts” request | Meta — produces this document |
-
----
-
-## Summary
-
-| Metric | Value |
-| --- | --- |
-| **Submission prompts** | **40** (numbered §1–§4) |
-| **Added for rubric clarity** | 6 (marked *Added*) |
-| **Excluded from log** | ~20 meta/duplicate/noise messages |
-| **Primary evidence elsewhere** | [`REPORT.md`](REPORT.md) (design + Etherscan txs), GitHub PR/commit history |
-
-*This log is submitted as evidence for the **Students as Managers of AI** criterion. Peer review (10%) is a separate 200-word reflection.*
+go through all unstaged changes in the repo and give me one final branch name and commit message using cz commit to complete this project

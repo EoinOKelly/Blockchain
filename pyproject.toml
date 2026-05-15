@@ -1,6 +1,6 @@
 [project]
 name = "blockchain-ticketing-dapp"
-version = "0.1.0"
+version = "0.2.0"
 description = "Web3 ticketing DApp project tooling configuration."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -12,3 +12,16 @@ dev = [
   "pre-commit>=3.8.0",
   "ruff>=0.6.9",
 ]
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+version = "0.2.0"
+tag_format = "v$version"
+version_scheme = "pep440"
+version_files = [
+  "pyproject.toml:project.version",
+  "package.json:version",
+  "frontend/package.json:version",
+]
+update_changelog_on_bump = false
+major_version_zero = true
