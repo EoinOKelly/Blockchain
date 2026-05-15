@@ -21,9 +21,11 @@ window.TICKET_CONTRACT_ABI = [
   "function ticketPriceWei() view returns (uint256)",
   "function vendor() view returns (address)",
   "function decimals() view returns (uint8)",
+  "function maxTickets() view returns (uint256)",
+  "function totalSupply() view returns (uint256)",
 ];
 
-/** ERC-20 reads + transfer back to vendor. */
+/** ERC-20 reads + transfer to vendor. */
 window.TICKET_ERC20_ABI = [
   "function balanceOf(address owner) view returns (uint256)",
   "function decimals() view returns (uint8)",

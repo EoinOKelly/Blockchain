@@ -2,7 +2,7 @@
 
 const connectWalletBtn = document.getElementById("connectWalletBtn");
 const checkBalanceBtn = document.getElementById("checkBalanceBtn");
-const returnTicketBtn = document.getElementById("returnTicketBtn");
+const transferToVendorBtn = document.getElementById("transferToVendorBtn");
 const statusMessage = document.getElementById("statusMessage");
 const vendorAddressValue = document.getElementById("vendorAddressValue");
 const senderWalletValue = document.getElementById("senderWalletValue");
@@ -12,7 +12,7 @@ const resultValue = document.getElementById("resultValue");
 let browserProvider = null;
 let signer = null;
 let connectedWalletAddress = "";
-let returnInProgress = false;
+let transferInProgress = false;
 
 function setStatus(message, isError = false) {
   statusMessage.textContent = message;
@@ -80,7 +80,7 @@ async function connectWallet() {
     connectedWalletAddress = await signer.getAddress();
     senderWalletValue.textContent = connectedWalletAddress;
     setStatus(`Connected: ${formatAddress(connectedWalletAddress)}`);
-    setResult("Connected. Check balance or return one ticket to the vendor.");
+    setResult("Connected. Check balance or transfer one ticket to the vendor.");
     await refreshTicketBalance();
   } catch (error) {
     setStatus(error.message || "Failed to connect wallet.", true);
@@ -107,8 +107,8 @@ async function refreshTicketBalance() {
   }
 }
 
-async function returnOneTicket() {
-  if (returnInProgress) {
+async function transferOneTicketToVendor() {
+  if (transferInProgress) {
     return;
   }
   const cfg = window.getTicketRuntimeConfig();
@@ -121,9 +121,9 @@ async function returnOneTicket() {
     return;
   }
 
-  returnInProgress = true;
-  returnTicketBtn.disabled = true;
-  setStatus("Submitting transfer to vendor...");
+  transferInProgress = true;
+  transferToVendorBtn.disabled = true;
+  setStatus("Submitting token transfer to vendor...");
   setResult("Waiting for wallet confirmation...");
 
   try {
@@ -134,15 +134,15 @@ async function returnOneTicket() {
 
     setResult(window.formatTxExplorerLink(tx.hash, "Submitted"));
     await tx.wait();
-    setStatus("Returned 1 ticket token to the vendor.");
+    setStatus("Transferred 1 ticket token to the vendor (no ETH refund).");
     setResult(window.formatTxExplorerLink(tx.hash, "Confirmed"));
     await refreshTicketBalance();
   } catch (error) {
-    setStatus(error.message || "Return transaction failed.", true);
+    setStatus(error.message || "Transfer failed.", true);
     setResult("Transaction failed or was rejected.");
   } finally {
-    returnInProgress = false;
-    returnTicketBtn.disabled = false;
+    transferInProgress = false;
+    transferToVendorBtn.disabled = false;
   }
 }
 
@@ -159,8 +159,8 @@ if (connectWalletBtn) {
 if (checkBalanceBtn) {
   checkBalanceBtn.addEventListener("click", refreshTicketBalance);
 }
-if (returnTicketBtn) {
-  returnTicketBtn.addEventListener("click", returnOneTicket);
+if (transferToVendorBtn) {
+  transferToVendorBtn.addEventListener("click", transferOneTicketToVendor);
 }
 
 init();

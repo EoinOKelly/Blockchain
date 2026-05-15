@@ -152,7 +152,19 @@ describe("TicketToken", function () {
     );
   });
 
-  it("lets holder transfer tokens to vendor (return flow)", async function () {
+  it("reverts when purchase would exceed the 100-ticket cap", async function () {
+    const { token, buyer, ticketPrice } = await deployFixture();
+    const one = ethers.parseUnits("1", 18);
+
+    await token.connect(buyer).buyTickets(100, { value: ticketPrice * 100n });
+    expect(await token.totalSupply()).to.equal(one * 100n);
+
+    await expect(
+      token.connect(buyer).buyTickets(1, { value: ticketPrice })
+    ).to.be.revertedWith("TicketToken: ticket cap exceeded");
+  });
+
+  it("lets holder transfer tokens to vendor", async function () {
     const { token, buyer, vendor, ticketPrice } = await deployFixture();
 
     await token.connect(buyer).buyTickets(1, { value: ticketPrice });
